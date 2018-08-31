@@ -25,6 +25,8 @@ namespace PixelPerfect
             InitializeComponent();
         }
 
+       
+
         public string MainText
         {
             get { return (string)GetValue(mainTextProperty); }
