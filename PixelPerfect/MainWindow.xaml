@@ -5,8 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixelPerfect"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280">
     <Grid>
-        
+        <Grid.Background>
+            <ImageBrush ImageSource="Images/block_marble.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,256,256"/>
+        </Grid.Background>
+        <Grid Height="120" VerticalAlignment="Top">
+            <Grid.Background>
+                <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
+            </Grid.Background>
+        </Grid>
+        <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0"/>
+        <Grid Height="80" VerticalAlignment="Bottom" Background="Black">
+            <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,8,10"/>
+        </Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32">
+            <Button x:Name="addProfileB" Content="" Width="34" Height="63" Style="{DynamicResource AddProfileButton}" Margin="0,0,-3,0"/>
+            <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0"/>
+            <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0"/>
+        </StackPanel>
+        <ScrollViewer HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFA06B6B" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto">
+            <local:ProfileItem Background="#FFCD2D2D" IconImage="Images/block_granite.png" VerticalAlignment="Top" Margin="0" Width="Auto" Height="68" MainText="Предварительная версия" SubText="1.13.1"/>
+        </ScrollViewer>
     </Grid>
 </Window>

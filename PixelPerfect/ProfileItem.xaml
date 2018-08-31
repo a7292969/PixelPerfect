@@ -1,0 +1,21 @@
+﻿<UserControl x:Name="userControl" x:Class="PixelPerfect.ProfileItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PixelPerfect"
+             mc:Ignorable="d" 
+             d:DesignHeight="48" d:DesignWidth="247.5" Height="68" MaxHeight="75" Width="329">
+    <Border BorderBrush="#FFCCCCCC" Background="White" BorderThickness="1" Margin="0" Height="68">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="21*"/>
+            </Grid.ColumnDefinitions>
+            <Image HorizontalAlignment="Left" Margin="20,9,0,9" Width="48" Height="48" Source="{Binding IconImage, ElementName=userControl}" MaxWidth="48" MaxHeight="48" Stretch="Fill"/>
+            <Path Data="M90,14.25L90,50" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="54" Margin="85,0,0,0" Stretch="Fill" Stroke="#FF999999" VerticalAlignment="Center" Width="1"/>
+            <Label Content="{Binding MainText, ElementName=userControl}" Margin="109,12,20,0" VerticalAlignment="Top" Foreground="#FF57B13B" Style="{DynamicResource CustomLabel}" Grid.ColumnSpan="2" FontFamily="Segoe UI Semibold" FontSize="16"/>
+            <Label Grid.ColumnSpan="2" Content="{Binding SubText, ElementName=userControl}" Margin="109,0,20,13" Style="{DynamicResource CustomLabel}" VerticalAlignment="Bottom"/>
+        </Grid>
+    </Border>
+</UserControl>

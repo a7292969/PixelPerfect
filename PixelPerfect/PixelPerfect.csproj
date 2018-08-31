@@ -67,8 +67,19 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProfileItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProfileItem.xaml.cs">
+      <DependentUpon>ProfileItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -93,6 +104,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\add_profile_button.png" />
+    <Resource Include="Images\add_profile_button_hover.png" />
+    <Resource Include="Images\add_profile_button_press.png" />
+    <Resource Include="Images\block_granite.png" />
+    <Resource Include="Images\block_marble.png" />
+    <Resource Include="Images\minecraft_logo.png" />
+    <Resource Include="Images\mojang_logo.png" />
+    <Resource Include="Images\play_button.png" />
+    <Resource Include="Images\play_button_hover.png" />
+    <Resource Include="Images\play_button_press.png" />
+    <Resource Include="Images\profiles_button.png" />
+    <Resource Include="Images\profiles_button_hover.png" />
+    <Resource Include="Images\profiles_button_press.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
