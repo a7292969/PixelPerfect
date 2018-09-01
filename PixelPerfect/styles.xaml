@@ -634,7 +634,7 @@
                             <Border BorderBrush="Black" BorderThickness="2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto"/>
                             <Border x:Name="border" BorderBrush="#FF107D00" BorderThickness="0,0,2,2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Padding="0" Margin="4,4,2,2"/>
                             <Border x:Name="border1" BorderBrush="#FF64D055" BorderThickness="2,2,0,0" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="2,2,4,4"/>
-                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="0,1,0,0"/>
                         </Grid>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -644,7 +644,7 @@
                             <Setter Property="Visibility" TargetName="border1" Value="Hidden"/>
                             <Setter Property="Background" TargetName="grid">
                                 <Setter.Value>
-                                    <ImageBrush ImageSource="Images/block_granite.png" TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute"/>
+                                    <ImageBrush ImageSource="Images/granite.png" TileMode="Tile" Viewport="0,0,315,73" ViewportUnits="Absolute"/>
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
@@ -718,5 +718,68 @@
                 <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
             </MultiTrigger>
         </Style.Triggers>
+    </Style>
+    <Style x:Key="MCCancelButton" TargetType="{x:Type Button}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid SnapsToDevicePixels="True" Background="{x:Null}">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Unfocused"/>
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)" Storyboard.TargetName="border2">
+                                            <EasingDoubleKeyFrame KeyTime="0" Value="2"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="border2">
+                                            <EasingThicknessKeyFrame KeyTime="0" Value="-1"/>
+                                        </ThicknessAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Border x:Name="border2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Background="#9951B018">
+                            <Border.Effect>
+                                <BlurEffect Radius="0" KernelType="Box" RenderingBias="Quality"/>
+                            </Border.Effect>
+                        </Border>
+                        <Grid x:Name="grid">
+                            <Grid.Background>
+                                <ImageBrush ImageSource="Images/stone.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,315,64"/>
+                            </Grid.Background>
+                            <Border BorderBrush="Black" BorderThickness="2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto"/>
+                            <Border x:Name="border" BorderBrush="#FF515151" BorderThickness="0,0,2,2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Padding="0" Margin="4,4,2,2"/>
+                            <Border x:Name="border1" BorderBrush="DarkGray" BorderThickness="2,2,0,0" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="2,2,4,4"/>
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="0,1,0,0"/>
+                        </Grid>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsDefaulted" Value="true"/>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Visibility" TargetName="border" Value="Hidden"/>
+                            <Setter Property="Visibility" TargetName="border1" Value="Hidden"/>
+                            <Setter Property="Background" TargetName="grid">
+                                <Setter.Value>
+                                    <ImageBrush ImageSource="Images/granite.png" TileMode="Tile" Viewport="0,0,315,64" ViewportUnits="Absolute"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true"/>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

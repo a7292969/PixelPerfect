@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixelPerfect"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" MouseUp="Window_MouseUp" WindowStartupLocation="CenterScreen">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" MouseUp="Window_MouseUp" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico">
     <Window.Resources>
         <SolidColorBrush x:Key="RadioButton.Static.Background" Color="#FFFFFFFF"/>
         <SolidColorBrush x:Key="RadioButton.Static.Border" Color="#FF707070"/>
@@ -96,8 +96,10 @@
             </StackPanel>
         </Grid>
         <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True"/>
-        <Frame Content="Frame" Margin="0,120,0,80" NavigationUIVisibility="Hidden" Source="/PixelPerfect;component/AddProfilePage.xaml"/>
-        <Grid Height="80" VerticalAlignment="Bottom" Background="Black">
+        <ScrollViewer Margin="0,120,0,80" CanContentScroll="True" AutomationProperties.IsOffscreenBehavior="Onscreen" VerticalScrollBarVisibility="Auto">
+            <Frame Content="Frame" NavigationUIVisibility="Hidden" Source="/PixelPerfect;component/AddProfilePage.xaml" ScrollViewer.VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,30"/>
+        </ScrollViewer>
+        <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
             <Grid x:Name="downloadInfoGrid" Opacity="0.015">
                 <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
                 <Label x:Name="downloadInfoL" Content="Извлечение .... 1.6" HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="91.5" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
@@ -109,7 +111,7 @@
                 <Label Content="3.0.0000" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource HyperLabel}"/>
             </Grid>
         </Grid>
-        <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True">
+        <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
             <Button x:Name="addProfileB" Content="" Width="34" Height="63" Style="{DynamicResource AddProfileButton}" Margin="0,0,-3,0" Click="addProfileB_Click"/>
             <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
             <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>

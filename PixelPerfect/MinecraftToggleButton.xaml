@@ -52,7 +52,7 @@
             <Rectangle Fill="#FF15A700" Stroke="#FF15A700" Width="2" Height="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" SnapsToDevicePixels="True"/>
             <Rectangle Fill="#FF14A100" Stroke="#FF14A100" Width="2" Height="2" VerticalAlignment="Top" HorizontalAlignment="Right" SnapsToDevicePixels="True"/>
         </Grid>
-        <Label Content="{Binding MainText, ElementName=userControl}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0" FontWeight="Bold" FontFamily="Ebrima" FontSize="16" Foreground="{Binding MainTextForeground, ElementName=userControl}">
+        <Label Content="{Binding MainText, ElementName=userControl}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,0" FontWeight="Bold" FontFamily="Arial Rounded MT Bold" FontSize="16" Foreground="{Binding MainTextForeground, ElementName=userControl}">
             <Label.Effect>
                 <DropShadowEffect BlurRadius="0" ShadowDepth="2" RenderingBias="Quality" Color="#FF333333"/>
             </Label.Effect>

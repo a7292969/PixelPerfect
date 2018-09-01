@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,6 +15,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace PixelPerfect
 {
@@ -40,6 +42,30 @@ namespace PixelPerfect
 
                 profilesSP.Children.Add(item);
             }
+
+            bottomG.Height = 41;
+            playButtonsSP.Opacity = 0.0;
+        }
+
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
+
+
+            QuarticEase easingFunction = new QuarticEase();
+            easingFunction.EasingMode = EasingMode.EaseInOut;
+            anim0.EasingFunction = easingFunction;
+
+
+
+            anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
+            {
+                DoubleAnimation anim = new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(300));
+                anim.EasingFunction = easingFunction;
+                playButtonsSP.BeginAnimation(OpacityProperty, anim);
+            });
+
+            bottomG.BeginAnimation(HeightProperty, anim0);
         }
 
         private void playB_Click(object sender, RoutedEventArgs e)
@@ -95,9 +121,7 @@ namespace PixelPerfect
 
             generalTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim0);
             settingsTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim1);
-            profilesTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim2);
-
-           
+            profilesTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim2);  
         }
     }
 }
