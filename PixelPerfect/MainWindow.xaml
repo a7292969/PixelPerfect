@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixelPerfect"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" MouseUp="Window_MouseUp">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" MouseUp="Window_MouseUp" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <SolidColorBrush x:Key="RadioButton.Static.Background" Color="#FFFFFFFF"/>
         <SolidColorBrush x:Key="RadioButton.Static.Border" Color="#FF707070"/>
@@ -96,6 +96,7 @@
             </StackPanel>
         </Grid>
         <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True"/>
+        <Frame Content="Frame" Margin="0,120,0,80" NavigationUIVisibility="Hidden" Source="/PixelPerfect;component/AddProfilePage.xaml"/>
         <Grid Height="80" VerticalAlignment="Bottom" Background="Black">
             <Grid x:Name="downloadInfoGrid" Opacity="0.015">
                 <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
@@ -114,7 +115,9 @@
             <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
         </StackPanel>
         <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFA06B6B" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Hidden">
-            <local:ProfileItem IconImage="Images/block_granite.png" VerticalAlignment="Top" Margin="0" Width="Auto" Height="68" MainText="Предварительная версия" SubText="1.13.1"/>
+            <StackPanel x:Name="profilesSP">
+                <local:ProfileItem IconImage="Images/block_granite.png" VerticalAlignment="Top" Margin="0" Width="Auto" Height="68" MainText="Предварительная версия" SubText="1.13.1"/>
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </Window>

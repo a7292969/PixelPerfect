@@ -26,6 +26,20 @@ namespace PixelPerfect
         {
             InitializeComponent();
 
+            for (int i = 0; i < 10; i++)
+            {
+                ProfileItem item = new ProfileItem();
+                item.Width = double.NaN;
+                item.Height = 68;
+                item.MainText = "Срач версия";
+                item.SubText = "1.10.2";
+                Thickness margin = item.Margin;
+                margin.Top = -1;
+                item.Margin = margin;
+                item.IconImage = new BitmapImage(new Uri(@"pack://application:,,,/Images/block_granite.png", UriKind.Absolute));
+
+                profilesSP.Children.Add(item);
+            }
         }
 
         private void playB_Click(object sender, RoutedEventArgs e)

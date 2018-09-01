@@ -43,8 +43,8 @@ namespace PixelPerfect
 
         public ImageSource IconImage
         {
-            get { return (ImageSource)GetValue(subTextProperty); }
-            set { SetValue(subTextProperty, value); }
+            get { return (ImageSource)GetValue(iconImageProperty); }
+            set { SetValue(iconImageProperty, value); }
         }
         public static DependencyProperty iconImageProperty = DependencyProperty.Register("IconImage", typeof(ImageSource), typeof(ProfileItem), null);
     }

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixelPerfect"
              mc:Ignorable="d" 
-             d:DesignHeight="48" d:DesignWidth="247.5" Height="68" MaxHeight="75" Width="329">
+             d:DesignHeight="48" d:DesignWidth="247.5" Height="68" MaxHeight="68" Width="329">
 
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">
@@ -19,7 +19,7 @@
             </Style.Triggers>
         </Style>
     </UserControl.Style>
-    <Border x:Name="border" BorderThickness="1" Margin="0" Height="68">
+    <Border x:Name="border" BorderThickness="1" Margin="0" BorderBrush="#FFCCCCCC">
         <Grid>
             <Image HorizontalAlignment="Left" Margin="20,9,0,9" Width="48" Height="48" Source="{Binding IconImage, ElementName=userControl}" MaxWidth="48" MaxHeight="48" Stretch="Fill"/>
             <Path Data="M90,14.25L90,50" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="54" Margin="85,0,0,0" Stretch="Fill" Stroke="#FF999999" VerticalAlignment="Center" Width="1"/>
