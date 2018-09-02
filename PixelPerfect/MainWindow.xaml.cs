@@ -64,33 +64,20 @@ namespace PixelPerfect
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
-
-            QuarticEase easingFunction = new QuarticEase();
-            easingFunction.EasingMode = EasingMode.EaseInOut;
-
-            anim0.EasingFunction = easingFunction;
-            anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
-            {
-                DoubleAnimation anim = new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(300));
-                anim.EasingFunction = easingFunction;
-                playButtonsSP.BeginAnimation(OpacityProperty, anim);
-            });
-
-            bottomG.BeginAnimation(HeightProperty, anim0);
+            showPlayBar();
         }
 
         private void addProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
-            playButtonsSP.Visibility = Visibility.Hidden;
+            hidePlayBar();
             frame.Navigate(addProfilePage);
         }
 
         private void editProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
-            playButtonsSP.Visibility = Visibility.Hidden;
+            hidePlayBar();
             frame.Navigate(editProfilePage);
         }
 
@@ -114,7 +101,6 @@ namespace PixelPerfect
                 profilesSV.Visibility = Visibility.Visible;
         }
 
-
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
@@ -130,6 +116,38 @@ namespace PixelPerfect
         {
             updateMainToggleButtons(settingsTB);
             frame.Navigate(settingsPage);
+        }
+
+        private void showPlayBar()
+        {
+            DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
+
+            QuarticEase easingFunction = new QuarticEase();
+            easingFunction.EasingMode = EasingMode.EaseInOut;
+
+            anim0.EasingFunction = easingFunction;
+            anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
+            {
+                DoubleAnimation anim = new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(300));
+                anim.EasingFunction = easingFunction;
+                playButtonsSP.BeginAnimation(OpacityProperty, anim);
+            });
+
+            bottomG.BeginAnimation(HeightProperty, anim0);
+        }
+
+        private void hidePlayBar()
+        {
+            DoubleAnimation anim0 = new DoubleAnimation(41, TimeSpan.FromMilliseconds(200));
+
+            QuarticEase easingFunction = new QuarticEase();
+            easingFunction.EasingMode = EasingMode.EaseInOut;
+
+            bottomG.BeginAnimation(HeightProperty, anim0);
+
+            DoubleAnimation anim = new DoubleAnimation(0.0, TimeSpan.FromMilliseconds(300));
+            anim.EasingFunction = easingFunction;
+            playButtonsSP.BeginAnimation(OpacityProperty, anim);
         }
 
         private void updateMainToggleButtons(MinecraftToggleButton checkedButton)
@@ -151,6 +169,8 @@ namespace PixelPerfect
             {
                 frame.Navigate(settingsPage);
             }
+
+            showPlayBar();
         }
     }
 }

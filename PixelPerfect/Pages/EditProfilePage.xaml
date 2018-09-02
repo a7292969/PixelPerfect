@@ -8,34 +8,33 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EditProfilePage">
 
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid MaxWidth="800">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558">
+            <Label x:Name="imageAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label Content="Редактировать конфиругацию" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0,0,0,33" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>
             <Label Content="Название" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444"/>
             <StackPanel VerticalAlignment="Center" Margin="0" Orientation="Horizontal">
-                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="350" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0"/>
+                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0" Text="Новая конфигурация"/>
                 <Button x:Name="selectIconB" Content="" Height="48" Width="48" Margin="10,0,0,0" Style="{DynamicResource SelectIconButton}" Click="selectIconB_Click">
                     <Button.Background>
                         <ImageBrush ImageSource="/PixelPerfect;component/Images/Blocks/Furnace.png" TileMode="Tile"/>
                     </Button.Background>
                 </Button>
             </StackPanel>
+            <Label Content="Параметры Java" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
+            <TextBox x:Name="nameTB_Copy" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0,5,0,0" Text="-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,20,0,0">
                 <Button x:Name="saveB" Content="СОХРАНИТЬ" FontSize="14" Style="{DynamicResource MCButton}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Height="37" Width="160" FontFamily="Century Gothic" FontWeight="Bold" Click="saveB_Click"/>
                 <Button x:Name="cancelB" Content="ОТМЕНА" FontSize="14" Style="{DynamicResource MCCancelButton}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Height="37" Width="100" Margin="24,0,0,0" FontFamily="Century Gothic" FontWeight="Bold" Click="cancelB_Click"/>
             </StackPanel>
         </StackPanel>
-        <Grid HorizontalAlignment="Center" Height="332" VerticalAlignment="Center" Width="560" Background="#FFEFECE7">
-            <WrapPanel Margin="58,42,58,92">
-                <Button Content="" Height="50" Width="50" Style="{DynamicResource MCIconItem}">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/PixelPerfect;component/Images/Blocks/Furnace.png"/>
-                    </Button.Background>
-                </Button>
-            </WrapPanel>
+        <Grid x:Name="iconSelecionG" HorizontalAlignment="Center" Height="332" VerticalAlignment="Center" Width="560" Background="#FFEFECE7" Visibility="Collapsed">
+            <ScrollViewer Margin="54,38,54,92">
+                <WrapPanel x:Name="iconsWP" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>
+            </ScrollViewer>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,25" Orientation="Horizontal">
-                <Button Content="ОБЗОР..." HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="160" Style="{DynamicResource MCButton}" FontFamily="Century Gothic" FontWeight="Bold" FontSize="14" Foreground="White"/>
-                <Button Content="ОТМЕНА" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="100" Style="{DynamicResource MCCancelButton}" FontFamily="Century Gothic" FontSize="14" FontWeight="Bold" Foreground="White" Margin="20,0,0,0"/>
+                <Button x:Name="selectIconFileB" Content="ОБЗОР..." HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="160" Style="{DynamicResource MCButton}" FontFamily="Century Gothic" FontWeight="Bold" FontSize="14" Foreground="White" Click="selectIconFileB_Click"/>
+                <Button x:Name="cancelIconSelectB" Content="ОТМЕНА" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="100" Style="{DynamicResource MCCancelButton}" FontFamily="Century Gothic" FontSize="14" FontWeight="Bold" Foreground="White" Margin="20,0,0,0" Click="cancelIconSelectB_Click"/>
             </StackPanel>
         </Grid>
 

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +25,8 @@ namespace PixelPerfect.Pages
         ResourceDictionary res = (ResourceDictionary)Application.LoadComponent(new Uri("styles.xaml", UriKind.Relative));
         MainWindow mw = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
 
+        OpenFileDialog openFileDialog;
+
         private string[] defaultIconNames =
         {
             "Bedrock", "Bookshelf", "Brick", "Chest", "Clay", "Coal_Block", "Coal_Ore", "Cobblestone",
@@ -37,11 +41,29 @@ namespace PixelPerfect.Pages
         {
             InitializeComponent();
 
-            Button button = new Button();
-            button.Width = 48;
-            button.Height = 48;
-            button.Style = (Style)res["SelectIconButton"];
-            button.Background = new ImageBrush(new BitmapImage(new Uri("Images/Blocks/Mycelium.png", UriKind.Relative)));
+            openFileDialog = new OpenFileDialog();
+            openFileDialog.CheckFileExists = true;
+            openFileDialog.DefaultExt = ".png";
+            openFileDialog.Filter = "PNG Image (*.png)|*.png";
+            openFileDialog.FileOk += openFileDialog_FileOk;
+
+            foreach (string icon in defaultIconNames)
+            {
+                Button button = new Button();
+                button.Width = 50;
+                button.Height = 50;
+
+                Thickness margin = button.Margin;
+                margin.Left = 4;
+                margin.Top = 4;
+
+                button.Margin = margin;
+                button.Style = (Style)res["MCIconItem"];
+                button.Background = new ImageBrush(new BitmapImage(new Uri("pack://application:,,/Images/Blocks/" + icon + ".png", UriKind.Absolute)));
+                button.Click += selectedIconFromDefaults;
+
+                iconsWP.Children.Add(button);
+            }
         }
 
         private void saveB_Click(object sender, RoutedEventArgs e)
@@ -58,7 +80,44 @@ namespace PixelPerfect.Pages
 
         private void selectIconB_Click(object sender, RoutedEventArgs e)
         {
+            iconSelecionG.Visibility = Visibility.Visible;
+        }
 
+        private void cancelIconSelectB_Click(object sender, RoutedEventArgs e)
+        {
+            iconSelecionG.Visibility = Visibility.Collapsed;
+        }
+
+        private void selectIconFileB_Click(object sender, RoutedEventArgs e)
+        {
+            openFileDialog.ShowDialog();
+        }
+
+        private void selectedIconFromDefaults(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            ImageBrush image = (ImageBrush)button.Background;
+
+            selectIconB.Background = image;
+            iconSelecionG.Visibility = Visibility.Collapsed;
+        }
+
+        private void openFileDialog_FileOk(object sender, CancelEventArgs e)
+        {
+            BitmapImage image = new BitmapImage(new Uri(openFileDialog.FileName));
+
+            if (image.Width == image.Height)
+            {
+                selectIconB.Background = new ImageBrush(image);
+                imageAttentionL.Visibility = Visibility.Collapsed;
+                iconSelecionG.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                imageAttentionL.Visibility = Visibility.Visible;
+            }
+
+            iconSelecionG.Visibility = Visibility.Collapsed;
         }
     }
 }
