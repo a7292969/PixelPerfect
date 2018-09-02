@@ -55,7 +55,8 @@ namespace PixelPerfect
 
                 profilesSP.Children.Add(item);
             }
-
+        
+            
 
             // Set values for startup animations
             bottomG.Height = 41;
@@ -71,14 +72,15 @@ namespace PixelPerfect
         {
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
-            frame.Navigate(addProfilePage);
+            navigatePage(addProfilePage);
+           
         }
 
         private void editProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
-            frame.Navigate(editProfilePage);
+            navigatePage(editProfilePage);
         }
 
         private void playB_Click(object sender, RoutedEventArgs e)
@@ -109,17 +111,19 @@ namespace PixelPerfect
         private void generalTB_Clicked(object sender, MouseButtonEventArgs e)
         {
             updateMainToggleButtons(generalTB);
-            frame.Navigate(generalPage);
+            navigatePage(generalPage);
         }
 
         private void settingsTB_Clicked(object sender, MouseButtonEventArgs e)
         {
             updateMainToggleButtons(settingsTB);
-            frame.Navigate(settingsPage);
+            navigatePage(settingsPage);
         }
 
         private void showPlayBar()
         {
+            playButtonsSP.Visibility = Visibility.Visible;
+
             DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
 
             QuarticEase easingFunction = new QuarticEase();
@@ -134,6 +138,10 @@ namespace PixelPerfect
             });
 
             bottomG.BeginAnimation(HeightProperty, anim0);
+
+            Thickness margin = frameSV.Margin;
+            margin.Bottom = bottomG.Height;
+            frameSV.Margin = margin;
         }
 
         private void hidePlayBar()
@@ -147,6 +155,15 @@ namespace PixelPerfect
 
             DoubleAnimation anim = new DoubleAnimation(0.0, TimeSpan.FromMilliseconds(300));
             anim.EasingFunction = easingFunction;
+            anim.Completed += new EventHandler((object sender, EventArgs e) =>
+            {
+                playButtonsSP.Visibility = Visibility.Hidden;
+
+                Thickness margin = frameSV.Margin;
+                margin.Bottom = bottomG.Height;
+                frameSV.Margin = margin;
+            });
+
             playButtonsSP.BeginAnimation(OpacityProperty, anim);
         }
 
@@ -163,14 +180,31 @@ namespace PixelPerfect
         {
             if (generalTB.CheckOpacity == 1)
             {
-                frame.Navigate(generalPage);
+                navigatePage(generalPage);
             }
             else if (settingsTB.CheckOpacity == 1)
             {
-                frame.Navigate(settingsPage);
+                navigatePage(settingsPage);
             }
 
             showPlayBar();
+        }
+
+        public void navigatePage(Page page)
+        {
+            Frame frame = new Frame();
+            frame.HorizontalAlignment = HorizontalAlignment.Center;
+            frame.VerticalAlignment = VerticalAlignment.Center;
+
+            Thickness margin = frame.Margin;
+            margin.Top = 20;
+            margin.Bottom = 30;
+
+            frame.Margin = margin;
+            frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
+            frame.Content = page;
+
+            frameSV.Content = frame;
         }
     }
 }
