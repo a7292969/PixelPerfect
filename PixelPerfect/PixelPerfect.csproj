@@ -58,7 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="AddProfilePage.xaml">
+    <Page Include="Pages\AddProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -66,7 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="AddProfilePage.xaml.cs">
+    <Compile Include="Pages\AddProfilePage.xaml.cs">
       <DependentUpon>AddProfilePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="App.xaml.cs">
@@ -81,13 +81,21 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Pages\EditProfilePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\GeneralPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ProfileItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ProfilesPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="styles.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -98,11 +106,17 @@
     <Compile Include="MinecraftToggleButton.xaml.cs">
       <DependentUpon>MinecraftToggleButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\EditProfilePage.xaml.cs">
+      <DependentUpon>EditProfilePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\GeneralPage.xaml.cs">
+      <DependentUpon>GeneralPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SettingsPage.xaml.cs">
+      <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ProfileItem.xaml.cs">
       <DependentUpon>ProfileItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ProfilesPage.xaml.cs">
-      <DependentUpon>ProfilesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -155,6 +169,55 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\edit_profile_button.png" />
+    <Resource Include="Images\edit_profile_button_hover.png" />
+    <Resource Include="Images\edit_profile_button_press.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Blocks\Bedrock.png" />
+    <Resource Include="Images\Blocks\Bookshelf.png" />
+    <Resource Include="Images\Blocks\Brick.png" />
+    <Resource Include="Images\Blocks\Chest.png" />
+    <Resource Include="Images\Blocks\Clay.png" />
+    <Resource Include="Images\Blocks\Coal_Block.png" />
+    <Resource Include="Images\Blocks\Coal_Ore.png" />
+    <Resource Include="Images\Blocks\Cobblestone.png" />
+    <Resource Include="Images\Blocks\Crafting_Table.png" />
+    <Resource Include="Images\Blocks\Diamond_Block.png" />
+    <Resource Include="Images\Blocks\Diamond_Ore.png" />
+    <Resource Include="Images\Blocks\Dirt.png" />
+    <Resource Include="Images\Blocks\Dirt_Podzol.png" />
+    <Resource Include="Images\Blocks\Dirt_Snow.png" />
+    <Resource Include="Images\Blocks\Emerald_Block.png" />
+    <Resource Include="Images\Blocks\Emerald_Ore.png" />
+    <Resource Include="Images\Blocks\End_Stone.png" />
+    <Resource Include="Images\Blocks\Farmland.png" />
+    <Resource Include="Images\Blocks\Furnace.png" />
+    <Resource Include="Images\Blocks\Furnace_On.png" />
+    <Resource Include="Images\Blocks\Glass.png" />
+    <Resource Include="Images\Blocks\Glowstone.png" />
+    <Resource Include="Images\Blocks\Gold_Block.png" />
+    <Resource Include="Images\Blocks\Gold_Ore.png" />
+    <Resource Include="Images\Blocks\Grass.png" />
+    <Resource Include="Images\Blocks\Gravel.png" />
+    <Resource Include="Images\Blocks\Hardened_Clay.png" />
+    <Resource Include="Images\Blocks\Ice_Packed.png" />
+    <Resource Include="Images\Blocks\Iron_Block.png" />
+    <Resource Include="Images\Blocks\Iron_Ore.png" />
+    <Resource Include="Images\Blocks\Lapis_Ore.png" />
+    <Resource Include="Images\Blocks\Leaves_Birch.png" />
+    <Resource Include="Images\Blocks\Leaves_Jungle.png" />
+    <Resource Include="Images\Blocks\Leaves_Oak.png" />
+    <Resource Include="Images\Blocks\Leaves_Spruce.png" />
+    <Resource Include="Images\Blocks\Log_Acacia.png" />
+    <Resource Include="Images\Blocks\Log_Birch.png" />
+    <Resource Include="Images\Blocks\Log_DarkOak.png" />
+    <Resource Include="Images\Blocks\Log_Jungle.png" />
+    <Resource Include="Images\Blocks\Log_Oak.png" />
+    <Resource Include="Images\Blocks\Log_Spruce.png" />
+    <Resource Include="Images\Blocks\Mycelium.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

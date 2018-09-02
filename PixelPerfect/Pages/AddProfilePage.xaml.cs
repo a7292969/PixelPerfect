@@ -13,16 +13,30 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PixelPerfect
+namespace PixelPerfect.Pages
 {
     /// <summary>
     /// Логика взаимодействия для AddProfilePage.xaml
     /// </summary>
     public partial class AddProfilePage : Page
     {
+        MainWindow mw = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+
         public AddProfilePage()
         {
             InitializeComponent();
+        }
+
+        private void saveB_Click(object sender, RoutedEventArgs e)
+        {
+            mw.playButtonsSP.Visibility = Visibility.Visible;
+            mw.loadSelectedPage();
+        }
+
+        private void cancelB_Click(object sender, RoutedEventArgs e)
+        {
+            mw.playButtonsSP.Visibility = Visibility.Visible;
+            mw.loadSelectedPage();
         }
     }
 }

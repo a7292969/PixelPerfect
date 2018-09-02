@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace PixelPerfect
+namespace PixelPerfect.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для ProfilesPage.xaml
+    /// Логика взаимодействия для SettingsPage.xaml
     /// </summary>
-    public partial class ProfilesPage : Page
+    public partial class SettingsPage : Page
     {
-        public ProfilesPage()
+        public SettingsPage()
         {
             InitializeComponent();
         }
