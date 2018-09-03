@@ -1,22 +1,14 @@
 ﻿using PixelPerfect.Pages;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace PixelPerfect
 {
@@ -25,10 +17,14 @@ namespace PixelPerfect
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Page generalPage;
+        private GeneralPage generalPage;
         private Page settingsPage;
+        private Page statusPage;
         private Page addProfilePage;
         private Page editProfilePage;
+
+        
+
 
         public MainWindow()
         {
@@ -36,6 +32,7 @@ namespace PixelPerfect
 
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
+            statusPage = new StatusPage();
             addProfilePage = new AddProfilePage();
             editProfilePage = new EditProfilePage();
 
@@ -61,26 +58,36 @@ namespace PixelPerfect
             // Set values for startup animations
             bottomG.Height = 41;
             playButtonsSP.Opacity = 0.0;
+
+            generalPage.addNews("Предварительная версия", "Вышло обновление", new BitmapImage(new Uri("/PixelPerfect;component/Images/63193ebe421c30ebffc9a97c47ee5fcb-Header.jpg", UriKind.Relative)));
+
+            if (InternetAvailability.IsInternetAvailable())
+            {
+                Console.WriteLine("SOSOS");
+            }
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            showPlayBar();
+            loadSelectedPage();
         }
 
-        private void addProfileB_Click(object sender, RoutedEventArgs e)
+        private async void addProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
-            navigatePage(addProfilePage);
-           
+            navigatePage(addProfilePage, false, false);
+
+            Console.WriteLine(await Utils.GetPlayerUUID("MotanGish"));
+
+            Console.WriteLine(Utils.GenerateClientToken());
         }
 
         private void editProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
-            navigatePage(editProfilePage);
+            navigatePage(editProfilePage, false, false);
         }
 
         private void playB_Click(object sender, RoutedEventArgs e)
@@ -111,13 +118,19 @@ namespace PixelPerfect
         private void generalTB_Clicked(object sender, MouseButtonEventArgs e)
         {
             updateMainToggleButtons(generalTB);
-            navigatePage(generalPage);
+            loadGeneralPage();
         }
 
         private void settingsTB_Clicked(object sender, MouseButtonEventArgs e)
         {
             updateMainToggleButtons(settingsTB);
-            navigatePage(settingsPage);
+            loadSettingsPage();
+        }
+
+        private void statusTB_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            updateMainToggleButtons(statusTB);
+            loadStatusPage();
         }
 
         private void showPlayBar()
@@ -135,18 +148,20 @@ namespace PixelPerfect
                 DoubleAnimation anim = new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(300));
                 anim.EasingFunction = easingFunction;
                 playButtonsSP.BeginAnimation(OpacityProperty, anim);
+
+                Thickness margin = frameSV.Margin;
+                margin.Bottom = bottomG.Height;
+                frameSV.Margin = margin;
             });
 
             bottomG.BeginAnimation(HeightProperty, anim0);
-
-            Thickness margin = frameSV.Margin;
-            margin.Bottom = bottomG.Height;
-            frameSV.Margin = margin;
         }
 
         private void hidePlayBar()
         {
-            DoubleAnimation anim0 = new DoubleAnimation(41, TimeSpan.FromMilliseconds(200));
+            int h = 41;
+
+            DoubleAnimation anim0 = new DoubleAnimation(h, TimeSpan.FromMilliseconds(200));
 
             QuarticEase easingFunction = new QuarticEase();
             easingFunction.EasingMode = EasingMode.EaseInOut;
@@ -158,11 +173,11 @@ namespace PixelPerfect
             anim.Completed += new EventHandler((object sender, EventArgs e) =>
             {
                 playButtonsSP.Visibility = Visibility.Hidden;
-
-                Thickness margin = frameSV.Margin;
-                margin.Bottom = bottomG.Height;
-                frameSV.Margin = margin;
             });
+
+            Thickness margin = frameSV.Margin;
+            margin.Bottom = h;
+            frameSV.Margin = margin;
 
             playButtonsSP.BeginAnimation(OpacityProperty, anim);
         }
@@ -171,40 +186,76 @@ namespace PixelPerfect
         {
             DoubleAnimation anim0 = new DoubleAnimation(generalTB.CheckOpacity, generalTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
             DoubleAnimation anim1 = new DoubleAnimation(settingsTB.CheckOpacity, settingsTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
+            DoubleAnimation anim2 = new DoubleAnimation(statusTB.CheckOpacity, statusTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
 
             generalTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim0);
             settingsTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim1);
+            statusTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim2);
+        }
+
+        public void loadGeneralPage()
+        {
+            navigatePage(generalPage, false, true);
+            showPlayBar();
+        }
+
+        public void loadSettingsPage()
+        {
+            navigatePage(settingsPage, false, false);
+            showPlayBar();
+        }
+
+        public void loadStatusPage()
+        {
+            navigatePage(statusPage, false, false);
+            showPlayBar();
         }
 
         public void loadSelectedPage()
         {
             if (generalTB.CheckOpacity == 1)
-            {
-                navigatePage(generalPage);
-            }
+                loadGeneralPage();
             else if (settingsTB.CheckOpacity == 1)
-            {
-                navigatePage(settingsPage);
-            }
+                loadSettingsPage();
 
             showPlayBar();
         }
 
-        public void navigatePage(Page page)
+        public void navigatePage(Page page, bool disableScroll, bool stretch)
         {
             Frame frame = new Frame();
-            frame.HorizontalAlignment = HorizontalAlignment.Center;
-            frame.VerticalAlignment = VerticalAlignment.Center;
 
-            Thickness margin = frame.Margin;
-            margin.Top = 20;
-            margin.Bottom = 30;
+            if (stretch)
+            {
+                frame.HorizontalAlignment = HorizontalAlignment.Stretch;
+                frame.VerticalAlignment = VerticalAlignment.Stretch;
+            }
+            else
+            {
+                frame.HorizontalAlignment = HorizontalAlignment.Center;
+                frame.VerticalAlignment = VerticalAlignment.Center;
 
-            frame.Margin = margin;
+                Thickness margin = frame.Margin;
+                margin.Top = 20;
+                margin.Bottom = 30;
+                frame.Margin = margin;
+            }
+
             frame.NavigationUIVisibility = NavigationUIVisibility.Hidden;
             frame.Content = page;
 
-            frameSV.Content = frame;
+            frameSV.Content = null;
+            frameG.Children.Clear();
+
+            if (disableScroll)
+                frameG.Children.Add(frame);
+            else
+                frameSV.Content = frame;
+        }
+
+        private void minecraftImage_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://minecraft.net");
         }
     }
 }

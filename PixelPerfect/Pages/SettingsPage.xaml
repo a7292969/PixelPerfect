@@ -9,6 +9,23 @@
       Title="SettingsPage">
 
     <Grid>
-        
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" SnapsToDevicePixels="True">
+            <Label Content="Папка игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,5,0,0">
+                <TextBox x:Name="pathTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" Text="Path" HorizontalAlignment="Center" Width="400" SnapsToDevicePixels="False" Margin="0,0,12,0"/>
+                <Button x:Name="selectFolderB" Content="" Style="{DynamicResource FolderButton}" Margin="0" Width="22" Height="22" Click="selectFolderB_Click">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/PixelPerfect;component/Images/folder.png" Stretch="Uniform"/>
+                    </Button.Background>
+                </Button>
+            </StackPanel>
+            <Label Content="Разрешение окна игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,9,0,0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5,0,0">
+                <TextBox Text="854" Width="80" Style="{DynamicResource MinecraftTextBox}" />
+                <Label Content="✕" FontSize="13" Foreground="#FF444444" Style="{DynamicResource CustomLabel}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
+                <TextBox Text="480" Width="80" Style="{DynamicResource MinecraftTextBox}" />
+            </StackPanel>
+        </StackPanel>
+
     </Grid>
 </Page>

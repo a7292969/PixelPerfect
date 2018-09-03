@@ -7,7 +7,7 @@
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="PixelPerfect.MainWindow"
         mc:Ignorable="d"
         Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp">
-  
+
     <Grid>
         <Grid.Background>
             <ImageBrush ImageSource="Images/block_marble.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,256,256"/>
@@ -19,12 +19,15 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
                 <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Главная" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
                 <local:MinecraftToggleButton x:Name="settingsTB" Height="36" Margin="20,0,0,0" MainText="Настройки" MouseUp="settingsTB_Clicked"/>
+                <local:MinecraftToggleButton x:Name="statusTB" Height="36" Margin="20,0,0,0" MainText="Статус" MouseUp="statusTB_Clicked"/>
             </StackPanel>
         </Grid>
-        <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True"/>
-        <ScrollViewer x:Name="frameSV" Margin="0,120,0,80" CanContentScroll="True" AutomationProperties.IsOffscreenBehavior="Onscreen" VerticalScrollBarVisibility="Auto"/>
+        <Image x:Name="minecraftImage" HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True" Cursor="Hand" MouseUp="minecraftImage_MouseUp"/>
+        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/crap.png" Height="25" SnapsToDevicePixels="True" Margin="22,22,0,0" Width="25"/>
+        <Grid x:Name="frameG" Margin="0,120,0,80"/>
+        <ScrollViewer x:Name="frameSV" Margin="0,120,0,80" AutomationProperties.IsOffscreenBehavior="Onscreen" VerticalScrollBarVisibility="Auto"/>
         <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
-            <Grid x:Name="downloadInfoGrid" Opacity="0.015">
+            <Grid x:Name="downloadInfoGrid" Opacity="0">
                 <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
                 <Label x:Name="downloadInfoL" Content="Извлечение .... 1.6" HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="91.5" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                 <Label x:Name="downloadLeftL" Content="1МБ осталось" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>

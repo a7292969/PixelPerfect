@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -20,9 +21,22 @@ namespace PixelPerfect.Pages
     /// </summary>
     public partial class SettingsPage : Page
     {
+        FolderBrowserDialog folderBrowserDialog;
+
         public SettingsPage()
         {
             InitializeComponent();
+
+            folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.ShowNewFolderButton = true;
+        }
+
+        private void selectFolderB_Click(object sender, RoutedEventArgs e)
+        {
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                pathTB.Text = folderBrowserDialog.SelectedPath;
+            }
         }
     }
 }

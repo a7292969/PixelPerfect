@@ -1,0 +1,46 @@
+﻿<Page x:Class="PixelPerfect.Pages.StatusPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:PixelPerfect.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="StatusPage">
+
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
+
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Minecraft.net" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Mojang accounts website" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Authentication service" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Multiplayer session service" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Minecraft skins" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_green.png" Height="40" Width="40"/>
+                <Label Content="Public API" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                <Label Content="This service is healthy. All is good!" HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Page>

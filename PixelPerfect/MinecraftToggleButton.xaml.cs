@@ -45,5 +45,12 @@ namespace PixelPerfect
             set { SetValue(checkOpacityProperty, value); }
         }
         public static DependencyProperty checkOpacityProperty = DependencyProperty.Register("CheckOpacity", typeof(double), typeof(MinecraftToggleButton), null);
+
+        public bool Toggled
+        {
+            get { return (bool)GetValue(toggledProperty); }
+            set { SetValue(toggledProperty, value); }
+        }
+        public static DependencyProperty toggledProperty = DependencyProperty.Register("Toggled", typeof(bool), typeof(MinecraftToggleButton), null);
     }
 }
