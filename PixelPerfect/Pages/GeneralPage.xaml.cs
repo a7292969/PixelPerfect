@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +28,7 @@ namespace PixelPerfect.Pages
             InitializeComponent();
         }
 
-        public void addNews(string title, string text, ImageSource image)
+        public void addNews(string title, string text, string url, ImageSource image)
         {
 
             DropShadowEffect dropShadowEffect = new DropShadowEffect();
@@ -37,7 +39,11 @@ namespace PixelPerfect.Pages
             Grid grid = new Grid();
             grid.HorizontalAlignment = HorizontalAlignment.Center;
             grid.VerticalAlignment = VerticalAlignment.Top;
-
+            grid.Cursor = Cursors.Hand;
+            grid.MouseUp += new MouseButtonEventHandler((object sender, MouseButtonEventArgs e) =>
+            {
+                Process.Start(url);
+            });
 
             Image img = new Image();
             img.Source = image;
@@ -81,6 +87,35 @@ namespace PixelPerfect.Pages
             grid.Children.Add(textL);
 
             newsSP.Children.Add(grid);
+        }
+
+        public async void updateNews()
+        {
+            string response = await Connector.GetAsync("http://launchermeta.mojang.com/mc/news.json");
+
+            if (response == "-1")
+                return;
+
+            JObject obj = JObject.Parse(response);
+            JArray entries = (JArray)obj["entries"];
+
+            newsSP.Children.Clear();
+
+            foreach (JObject o in entries)
+            {
+                string tag = (string)o["tags"][0];
+
+                if (tag != "demo")
+                {
+                    string url = (string)o["content"]["en-us"]["action"];
+                    string imgPath = (string)o["content"]["en-us"]["image"];
+                    string title = (string)o["content"]["en-us"]["title"];
+                    string text = (string)o["content"]["en-us"]["text"];
+
+                    BitmapImage bitmap = new BitmapImage(new Uri(imgPath, UriKind.Absolute));
+                    addNews(title, text, url, bitmap);
+                }
+            }
         }
     }
 }

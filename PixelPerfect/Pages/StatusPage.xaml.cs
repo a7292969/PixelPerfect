@@ -33,7 +33,7 @@ namespace PixelPerfect.Pages
             statusUpdate = Utils.ImageFromResource("Images/status_update.png");
         }
 
-        public void setStatus(string status, string message, Image image, Label text)
+        public void setStatus(string status, Image image, Label text)
         {
             switch (status)
             {
@@ -51,7 +51,7 @@ namespace PixelPerfect.Pages
                     break;
                 case "message":
                     image.Source = statusMessage;
-                    text.Content = message;
+                    text.Content = "Сервис обновляется.";
                     break;
                 case "update":
                     image.Source = statusUpdate;
@@ -60,9 +60,19 @@ namespace PixelPerfect.Pages
             }
         }
 
-        public void updateStatuses()
+        public async void updateStatuses()
         {
+            Dictionary<string, string> status = await Utils.GetMojangStatus();
 
+            if (status == null)
+                return;
+
+            setStatus(status["minecraft.net"], minecraftIcon, minecraftText);
+            setStatus(status["account.mojang.com"], accountsIcon, accountsText);
+            setStatus(status["authserver.mojang.com"], authIcon, authText);
+            setStatus(status["sessionserver.mojang.com"], multiplayerIcon, multiplayerText);
+            setStatus(status["textures.minecraft.net"], texturesIcon, texturesText);
+            setStatus(status["api.mojang.com"], apiIcon, apiText);
         }
     }
 }

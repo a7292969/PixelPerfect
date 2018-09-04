@@ -1,8 +1,9 @@
-﻿using PixelPerfect.Pages;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using PixelPerfect.Pages;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,12 +20,13 @@ namespace PixelPerfect
     {
         private GeneralPage generalPage;
         private Page settingsPage;
-        private Page statusPage;
+        private StatusPage statusPage;
         private Page addProfilePage;
         private Page editProfilePage;
 
-        
+        private JObject settings;
 
+        private string ppPath, configPath;
 
         public MainWindow()
         {
@@ -36,40 +38,42 @@ namespace PixelPerfect
             addProfilePage = new AddProfilePage();
             editProfilePage = new EditProfilePage();
 
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    ProfileItem item = new ProfileItem();
+            //    item.Width = double.NaN;
+            //    item.Height = 68;
+            //    item.MainText = "Срач версия";
+            //    item.SubText = "1.10.2";
+            //    Thickness margin = item.Margin;
+            //    margin.Top = -1;
+            //    item.Margin = margin;
+            //    item.IconImage = new BitmapImage(new Uri("Images/block_granite.png", UriKind.Relative));
 
-
-            for (int i = 0; i < 10; i++)
-            {
-                ProfileItem item = new ProfileItem();
-                item.Width = double.NaN;
-                item.Height = 68;
-                item.MainText = "Срач версия";
-                item.SubText = "1.10.2";
-                Thickness margin = item.Margin;
-                margin.Top = -1;
-                item.Margin = margin;
-                item.IconImage = new BitmapImage(new Uri("Images/block_granite.png", UriKind.Relative));
-
-                profilesSP.Children.Add(item);
-            }
-        
-            
+            //    profilesSP.Children.Add(item);
+            //}
 
             // Set values for startup animations
             bottomG.Height = 41;
             playButtonsSP.Opacity = 0.0;
 
-            generalPage.addNews("Предварительная версия", "Вышло обновление", new BitmapImage(new Uri("/PixelPerfect;component/Images/63193ebe421c30ebffc9a97c47ee5fcb-Header.jpg", UriKind.Relative)));
+            // ----------------------------------------------------
 
-            if (InternetAvailability.IsInternetAvailable())
-            {
-                Console.WriteLine("SOSOS");
-            }
+            ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
+            configPath = ppPath + "\\config.json";
+            Directory.CreateDirectory(ppPath);
+
+            loadConfig();
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
             loadSelectedPage();
+        }
+
+        private void minecraftImage_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start("https://minecraft.net");
         }
 
         private async void addProfileB_Click(object sender, RoutedEventArgs e)
@@ -195,6 +199,7 @@ namespace PixelPerfect
 
         public void loadGeneralPage()
         {
+            generalPage.updateNews();
             navigatePage(generalPage, false, true);
             showPlayBar();
         }
@@ -207,6 +212,7 @@ namespace PixelPerfect
 
         public void loadStatusPage()
         {
+            statusPage.updateStatuses();
             navigatePage(statusPage, false, false);
             showPlayBar();
         }
@@ -253,9 +259,38 @@ namespace PixelPerfect
                 frameSV.Content = frame;
         }
 
-        private void minecraftImage_MouseUp(object sender, MouseButtonEventArgs e)
+        public void loadConfig()
         {
-            Process.Start("https://minecraft.net");
+            if (File.Exists(configPath))
+            {
+                try
+                {
+                    settings = JObject.Parse(File.ReadAllText(configPath));
+                }
+                catch
+                {
+                    createNewConfig();
+                }
+            }
+            else
+            {
+                createNewConfig();
+            }
+        }
+
+        public void createNewConfig()
+        {
+            if (File.Exists(configPath))
+                File.Delete(configPath);
+
+            settings = new JObject();
+            settings.Add("gamePath", ppPath + "Minecraft");
+
+            File.WriteAllText(configPath, JsonConvert.SerializeObject(settings));
+
+
+
+            //Console.WriteLine(roamingPath);
         }
     }
 }

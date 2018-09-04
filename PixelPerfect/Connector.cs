@@ -12,47 +12,67 @@ namespace PixelPerfect
     {
         public static async Task<string> GetAsync(string url)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-
-            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+            try
             {
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                        return await reader.ReadToEndAsync();
-                }
-                else
-                {
+                if (!InternetAvailability.IsInternetAvailable())
                     return "-1";
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                            return await reader.ReadToEndAsync();
+                    }
+                    else
+                    {
+                        return "-1";
+                    }
                 }
+            }
+            catch
+            {
+                return "-1";
             }
         }
 
         public static async Task<string> PostAsync(string url, string data)
         {
-            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.ContentLength = dataBytes.Length;
-            request.ContentType = "application/json";
-            request.Method = "POST";
-
-            using (Stream requestBody = request.GetRequestStream())
-                await requestBody.WriteAsync(dataBytes, 0, dataBytes.Length);
-
-            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+            try
             {
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                        return await reader.ReadToEndAsync();
-                }
-                else
-                {
+                if (!InternetAvailability.IsInternetAvailable())
                     return "-1";
+
+                byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.ContentLength = dataBytes.Length;
+                request.ContentType = "application/json";
+                request.Method = "POST";
+
+                using (Stream requestBody = request.GetRequestStream())
+                    await requestBody.WriteAsync(dataBytes, 0, dataBytes.Length);
+
+                using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                            return await reader.ReadToEndAsync();
+                    }
+                    else
+                    {
+                        return "-1";
+                    }
                 }
+            }
+            catch
+            {
+                return "-1";
             }
         }
     }
