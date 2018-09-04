@@ -223,6 +223,8 @@ namespace PixelPerfect
                 loadGeneralPage();
             else if (settingsTB.CheckOpacity == 1)
                 loadSettingsPage();
+            else if (statusTB.CheckOpacity == 1)
+                loadStatusPage();
 
             showPlayBar();
         }
