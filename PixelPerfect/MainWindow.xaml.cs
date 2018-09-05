@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using PixelPerfect.Pages;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -22,11 +23,15 @@ namespace PixelPerfect
         private Page settingsPage;
         private StatusPage statusPage;
         private Page addProfilePage;
-        private Page editProfilePage;
+        private EditProfilePage editProfilePage;
 
         private JObject settings;
-
         private string ppPath, configPath;
+
+        private VersionManifest versionManifest;
+
+        private BitmapImage grassIcon, craftingTableIcon;
+        private string grassIconData, craftingTableIconData;
 
         public MainWindow()
         {
@@ -38,32 +43,27 @@ namespace PixelPerfect
             addProfilePage = new AddProfilePage();
             editProfilePage = new EditProfilePage();
 
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    ProfileItem item = new ProfileItem();
-            //    item.Width = double.NaN;
-            //    item.Height = 68;
-            //    item.MainText = "Срач версия";
-            //    item.SubText = "1.10.2";
-            //    Thickness margin = item.Margin;
-            //    margin.Top = -1;
-            //    item.Margin = margin;
-            //    item.IconImage = new BitmapImage(new Uri("Images/block_granite.png", UriKind.Relative));
-
-            //    profilesSP.Children.Add(item);
-            //}
-
             // Set values for startup animations
             bottomG.Height = 41;
             playButtonsSP.Opacity = 0.0;
 
             // ----------------------------------------------------
+            grassIcon = Utils.ImageFromResource("Images\\Blocks\\Grass.png");
+            craftingTableIcon = Utils.ImageFromResource("Images\\Blocks\\Crafting_Table.png");
+
+            grassIconData = Convert.ToBase64String(Utils.ImageToBytes(grassIcon));
+            craftingTableIconData = Convert.ToBase64String(Utils.ImageToBytes(craftingTableIcon));
 
             ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
             configPath = ppPath + "\\config.json";
             Directory.CreateDirectory(ppPath);
 
             loadConfig();
+
+            versionManifest = Utils.GetMCVersions();
+
+            editProfilePage.updateVersions(versionManifest);
+            updateProfileItems();
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
@@ -76,19 +76,18 @@ namespace PixelPerfect
             Process.Start("https://minecraft.net");
         }
 
-        private async void addProfileB_Click(object sender, RoutedEventArgs e)
+        private void addProfileB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
             navigatePage(addProfilePage, false, false);
-
-            Console.WriteLine(await Utils.GetPlayerUUID("MotanGish"));
-
-            Console.WriteLine(Utils.GenerateClientToken());
         }
 
         private void editProfileB_Click(object sender, RoutedEventArgs e)
         {
+            string selectedProfile = settings["selectedProfile"].ToString();
+            editProfilePage.load(selectedProfile, getProfile(selectedProfile));
+
             profilesSV.Visibility = Visibility.Hidden;
             hidePlayBar();
             navigatePage(editProfilePage, false, false);
@@ -261,38 +260,133 @@ namespace PixelPerfect
                 frameSV.Content = frame;
         }
 
+        public void clearProfileItems()
+        {
+            profilesSP.Children.Clear();
+        }
+
+        public void addProfileItem(string mainText, string subText, BitmapImage icon)
+        {
+            ProfileItem item = new ProfileItem();
+            item.Width = double.NaN;
+            item.Height = 68;
+            item.MainText = mainText;
+            item.SubText = subText;
+            Thickness margin = item.Margin;
+            margin.Top = profilesSP.Children.Count == 0 ? 0 : -1;
+            item.Margin = margin;
+            item.IconImage = icon;
+            item.MouseUp += new MouseButtonEventHandler((object sender, MouseButtonEventArgs e) =>
+            {
+                ProfileItem i = (ProfileItem)sender;
+                settings["selectedProfile"] = i.MainText;
+                selectedProfileNameL.Content = i.MainText + " - " + i.SubText;
+                saveConfig();
+            });
+
+            profilesSP.Children.Add(item);
+
+            // Check for selected
+            string selectedProfile = settings["selectedProfile"].ToString();
+            if (selectedProfile == mainText)
+                selectedProfileNameL.Content = item.MainText + " - " + item.SubText;
+        }
+
+        public void updateProfileItems()
+        {
+            clearProfileItems();
+
+            if (versionManifest != null)
+            {
+                addProfileItem("Последний выпуск", versionManifest.latestVersion, grassIcon);
+                addProfileItem("Предварительная версия", versionManifest.latestSnapshot, craftingTableIcon);
+            }
+
+            JObject profiles = (JObject)settings["profiles"];
+            foreach (JProperty property in profiles.Properties())
+            {
+                JObject profile = (JObject)property.Value;
+                string name = property.Name;
+                string version = (string)profiles[name]["version"];
+                BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
+                addProfileItem(name, version, icon);
+            }
+        }
+
         public void loadConfig()
         {
             if (File.Exists(configPath))
-            {
                 try
                 {
                     settings = JObject.Parse(File.ReadAllText(configPath));
                 }
-                catch
-                {
-                    createNewConfig();
-                }
-            }
-            else
-            {
-                createNewConfig();
-            }
+                catch { createNewConfig(); }
+            else createNewConfig();
         }
 
-        public void createNewConfig()
+        public void saveConfig()
         {
             if (File.Exists(configPath))
                 File.Delete(configPath);
 
+            File.WriteAllText(configPath, JToken.Parse(JsonConvert.SerializeObject(settings)).ToString(Formatting.Indented));
+        }
+
+        public void createNewConfig()
+        {
             settings = new JObject();
-            settings.Add("gamePath", ppPath + "Minecraft");
+            settings["gamePath"] = ppPath + "Minecraft";
+            settings["profiles"] = new JObject();
+            settings["selectedProfile"] = "Последний выпуск";
 
-            File.WriteAllText(configPath, JsonConvert.SerializeObject(settings));
+            saveConfig();
+        }
 
+        public JObject getProfile(string name)
+        {
+            JObject o;
 
+            if (name == "Последний выпуск")
+            {
+                o = new JObject();
+                o["name"] = name;
+                o["icon"] = grassIconData;
+                o["version"] = versionManifest.latestVersion;
+                o["javaArgs"] = "";
+            }
+            else if (name == "Предварительная версия")
+            {
+                o = new JObject();
+                o["name"] = name;
+                o["icon"] = craftingTableIconData;
+                o["version"] = versionManifest.latestSnapshot;
+                o["javaArgs"] = "";
+            }
+            else
+            {
+                o = (JObject)settings["profiles"][name];
+            }
 
-            //Console.WriteLine(roamingPath);
+            return o;
+        }
+
+        public void setProfile(string oldName, string newName, JObject profile)
+        {
+            if (oldName != newName)
+            {
+                if (oldName == (string)settings["selectedProfile"])
+                    settings["selectedProfile"] = newName;
+
+                settings["profiles"][oldName].Parent.Remove();
+            }
+
+            settings["profiles"][newName] = profile;
+            saveConfig();
+        }
+
+        public bool isProfileExists(string name)
+        {
+            return settings["profiles"][name] != null;
         }
     }
 }

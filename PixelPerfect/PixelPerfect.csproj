@@ -44,6 +44,7 @@
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -63,7 +64,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MCVersion.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="VersionManifest.cs" />
     <Page Include="Pages\AddProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -234,9 +237,6 @@
     <Resource Include="Images\Blocks\Log_Oak.png" />
     <Resource Include="Images\Blocks\Log_Spruce.png" />
     <Resource Include="Images\Blocks\Mycelium.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\63193ebe421c30ebffc9a97c47ee5fcb-Header.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\folder.png" />

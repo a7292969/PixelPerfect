@@ -10,6 +10,35 @@ namespace PixelPerfect
 {
     class Connector
     {
+        public static string Get(string url)
+        {
+            try
+            {
+                if (!InternetAvailability.IsInternetAvailable())
+                    return "-1";
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                            return reader.ReadToEnd();
+                    }
+                    else
+                    {
+                        return "-1";
+                    }
+                }
+            }
+            catch
+            {
+                return "-1";
+            }
+        }
+
         public static async Task<string> GetAsync(string url)
         {
             try

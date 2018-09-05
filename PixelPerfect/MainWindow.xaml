@@ -33,9 +33,10 @@
                 <Label x:Name="downloadLeftL" Content="1МБ осталось" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
             </Grid>
             <Grid x:Name="basePlayInfoGrid">
-                <Label x:Name="profileNameL" Content="1.12.2 - OptiFile_U_E3_alpha8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
+                <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
                 <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
-                <Label Content="3.0.0000" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource HyperLabel}"/>
+                <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,20" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
             </Grid>
         </Grid>
         <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
@@ -44,10 +45,8 @@
             <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
             <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
         </StackPanel>
-        <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFA06B6B" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Hidden">
-            <StackPanel x:Name="profilesSP">
-                
-            </StackPanel>
+        <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Hidden">
+            <StackPanel x:Name="profilesSP"/>
         </ScrollViewer>
     </Grid>
 </Window>

@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixelPerfect.Pages
 {
@@ -29,14 +21,42 @@ namespace PixelPerfect.Pages
 
         private void saveB_Click(object sender, RoutedEventArgs e)
         {
-            mw.playButtonsSP.Visibility = Visibility.Visible;
-            mw.loadSelectedPage();
+            string name = nameTB.Text;
+
+            if (mw.isProfileExists(name))
+            {
+                existsAttentionL.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                BitmapImage img = Utils.ImageFromResource("Images\\Blocks\\Furnace.png");
+                byte[] bytes = Utils.ImageToBytes(img);
+
+                JObject profile = new JObject();
+                profile.Add("icon", Convert.ToBase64String(bytes));
+                profile.Add("version", "none");
+                profile.Add("custom", false);
+                profile.Add("javaArgs", "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M");
+
+                mw.setProfile(name, name, profile);
+
+                nameTB.Text = string.Empty;
+
+                mw.playButtonsSP.Visibility = Visibility.Visible;
+                mw.loadSelectedPage();
+                mw.updateProfileItems();
+            }
         }
 
         private void cancelB_Click(object sender, RoutedEventArgs e)
         {
             mw.playButtonsSP.Visibility = Visibility.Visible;
             mw.loadSelectedPage();
+        }
+
+        private void nameTB_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            existsAttentionL.Visibility = Visibility.Collapsed;
         }
     }
 }

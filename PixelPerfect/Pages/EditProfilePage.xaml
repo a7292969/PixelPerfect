@@ -10,11 +10,12 @@
 
     <Grid MaxWidth="800">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" Grid.ColumnSpan="2" Margin="121,69.505">
+            <Label x:Name="existsAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label x:Name="imageAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label Content="Редактировать конфиругацию" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0,0,0,33" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>
             <Label Content="Название" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444"/>
             <StackPanel VerticalAlignment="Center" Margin="0,-2,0,0" Orientation="Horizontal">
-                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0" Text="Новая конфигурация"/>
+                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0" Text="Новая конфигурация" TextChanged="nameTB_TextChanged"/>
                 <Button x:Name="selectIconB" Content="" Height="48" Width="48" Margin="10,0,0,0" Style="{DynamicResource SelectIconButton}" Click="selectIconB_Click">
                     <Button.Background>
                         <ImageBrush ImageSource="/PixelPerfect;component/Images/Blocks/Furnace.png" TileMode="Tile"/>

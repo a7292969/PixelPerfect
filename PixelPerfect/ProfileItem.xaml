@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixelPerfect"
              mc:Ignorable="d" 
-             d:DesignHeight="48" d:DesignWidth="247.5" Height="68" MaxHeight="68" Width="329">
+             d:DesignHeight="48" d:DesignWidth="247.5" Height="68" MaxHeight="68" Width="329" Padding="0">
 
     <UserControl.Style>
         <Style TargetType="{x:Type UserControl}">

@@ -1,7 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
@@ -21,6 +22,37 @@ namespace PixelPerfect
         {
             Console.WriteLine(GetResourcePath(path));
             return new BitmapImage(new Uri(GetResourcePath(path), UriKind.Absolute));
+        }
+
+        public static byte[] ImageToBytes(BitmapImage bitmapImage)
+        {
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                PngBitmapEncoder enc = new PngBitmapEncoder();
+
+                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+                enc.Save(outStream);
+
+                Bitmap bitmap = new Bitmap(outStream);
+
+                return (byte[])new ImageConverter().ConvertTo(bitmap, typeof(byte[]));
+            }
+        }
+
+        public static BitmapImage BytesToImage(byte[] array)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                memory.Write(array, 0, array.Length);
+                memory.Position = 0;
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+
+                return bitmapImage;
+            }
         }
 
         public static async Task<Dictionary<string, string>> GetMojangStatus()
@@ -50,6 +82,32 @@ namespace PixelPerfect
             string response = await Connector.GetAsync("https://api.mojang.com/users/profiles/minecraft/" + username);
             JObject o = JObject.Parse(response);
             return (string)o["id"];
+        }
+
+        public static VersionManifest GetMCVersions()
+        {
+            string response = Connector.Get("https://launchermeta.mojang.com/mc/game/version_manifest.json");
+
+            if (response == "-1")
+                return null;
+
+            Dictionary<string, MCVersion> versions = new Dictionary<string, MCVersion>();
+
+            JObject o = JObject.Parse(response);
+            JArray vers = (JArray)o["versions"];
+
+            foreach (JObject obj in vers)
+            {
+                string id = obj["id"].ToString();
+                string type = obj["type"].ToString();
+                string url = obj["url"].ToString();
+
+                MCVersion version = new MCVersion(type, url);
+                versions.Add(id, version);
+            }
+
+            JObject latest = (JObject)o["latest"];
+            return new VersionManifest(versions, latest["release"].ToString(), latest["snapshot"].ToString());
         }
 
         public static string GenerateClientToken()
