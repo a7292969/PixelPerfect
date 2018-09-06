@@ -40,6 +40,8 @@ namespace PixelPerfect
         {
             InitializeComponent();
 
+            Console.WriteLine(Utils.computeFileHash("D:\\test"));
+
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
             statusPage = new StatusPage();
@@ -425,7 +427,16 @@ namespace PixelPerfect
 
         public async void downloadVersion(string version)
         {
-            await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+            List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+
+            FileDownloader d = new FileDownloader(files);
+            d.OnCompleted += new FileDownloader.OnCompletedEventHandler((object sender) =>
+            {
+                Console.WriteLine("DOWN LOADED !!!!!");
+            });
+            d.Start();
+            
+            
         }
 
         public void startGame(string version, string path)

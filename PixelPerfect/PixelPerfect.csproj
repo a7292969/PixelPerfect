@@ -64,6 +64,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FileDownloader.cs" />
     <Compile Include="FileToDownload.cs" />
     <Compile Include="MCVersion.cs" />
     <Compile Include="Utils.cs" />

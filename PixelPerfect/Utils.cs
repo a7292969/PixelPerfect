@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
@@ -53,6 +54,14 @@ namespace PixelPerfect
 
                 return bitmapImage;
             }
+        }
+
+        public static string computeFileHash(string path)
+        {
+            FileStream file = File.OpenRead(path);
+            string hash = BitConverter.ToString(SHA1.Create().ComputeHash(file));
+            hash = hash.Replace("-", string.Empty).ToLower();
+            return hash;
         }
 
         public static async Task<Dictionary<string, string>> GetMojangStatus()
@@ -110,7 +119,7 @@ namespace PixelPerfect
             return new VersionManifest(versions, latest["release"].ToString(), latest["snapshot"].ToString());
         }
 
-        public static async Task<Dictionary<string, FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
+        public static async Task<List<FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
         {
             string assetsPath = gamePath + "\\assets\\";
             string librariesPath = gamePath + "\\libraries\\";
@@ -148,12 +157,46 @@ namespace PixelPerfect
             }
 
 
-            Dictionary<string, FileToDownload> files = new Dictionary<string, FileToDownload>();
+            List<FileToDownload> files = new List<FileToDownload>();
 
             // Version jar file
-            files.Add(version + ".jar", new FileToDownload(versionsPath + version + "\\" + version + ".jar", (string)verData["downloads"]["client"]["url"]));
+            files.Add(new FileToDownload(version + ".jar", versionsPath + version + "\\" + version + ".jar", (string)verData["downloads"]["client"]["url"], (string)verData["downloads"]["client"]["sha1"], (long)verData["downloads"]["client"]["size"]));
+
+            // Logging
+            if (verData.ContainsKey("logging"))
+            {
+                JObject file = (JObject)verData["logging"]["client"]["file"];
+
+                string name = (string)file["id"];
+                string url = (string)file["url"];
+
+                string loggingPath = assetsPath + "log_configs\\" + name;
+
+                if (!File.Exists(loggingPath))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(loggingPath));
+                    File.AppendAllText(loggingPath, await Connector.GetAsync(url));
+                }
+            }
 
             // Libraries
+            
+            
+            
+            
+            
+            
+            
+            // TODO DISABLE OSX LIBRARIES
+
+
+
+
+
+
+
+
+
             JArray libraries = (JArray)verData["libraries"];
             foreach (JObject o in libraries)
             {
@@ -162,10 +205,41 @@ namespace PixelPerfect
                     string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
                     string name = Path.GetFileName(path);
                     string url = (string)o["downloads"]["artifact"]["url"];
+                    string sha1 = (string)o["downloads"]["artifact"]["sha1"];
+                    long size = (long)o["downloads"]["artifact"]["size"];
 
-                    files.Add(name, new FileToDownload(path, url));
+                    files.Add(new FileToDownload(name, path, url, sha1, size));
+
+                    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                    {
+                        path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
+                        name = Path.GetFileName(path);
+                        url = (string)o["downloads"]["classifiers"]["natives-windows"]["url"];
+                        sha1 = (string)o["downloads"]["classifiers"]["natives-windows"]["sha1"];
+                        size = (long)o["downloads"]["classifiers"]["natives-windows"]["size"];
+
+
+                        files.Add(new FileToDownload(name, path, url, sha1, size));
+                    }
                 }
             }
+
+            // Assets
+            JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
+            foreach (JProperty prop in assets.Properties())
+            {
+                JObject o = (JObject)prop.Value;
+
+                string hash = (string)o["hash"];
+                long size = (long)o["size"];
+                string subHash = hash.Substring(0, 2);
+                string path = assetsPath + "objects\\" + subHash + "\\" + hash;
+
+                files.Add(new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size));
+            }
+
+
+            Console.WriteLine(files.Count);
 
             return files;
         }
