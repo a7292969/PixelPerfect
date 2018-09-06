@@ -30,9 +30,8 @@ namespace PixelPerfect.Pages
 
         public void addNews(string title, string text, string url, ImageSource image)
         {
-
             DropShadowEffect dropShadowEffect = new DropShadowEffect();
-            dropShadowEffect.BlurRadius = 20;
+            dropShadowEffect.BlurRadius = 5;
             dropShadowEffect.ShadowDepth = 0;
             dropShadowEffect.RenderingBias = RenderingBias.Quality;
 

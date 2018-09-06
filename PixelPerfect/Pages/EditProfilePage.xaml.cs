@@ -75,6 +75,29 @@ namespace PixelPerfect.Pages
             existsAttentionL.Visibility = Visibility.Collapsed;
         }
 
+        private void deleteL_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            mainControlsSP.IsEnabled = false;
+            deleteDialogG.Visibility = Visibility.Visible;
+        }
+
+        private void deleteProfileB_Click(object sender, RoutedEventArgs e)
+        {
+            mainControlsSP.IsEnabled = true;
+            deleteDialogG.Visibility = Visibility.Collapsed;
+
+            mw.playButtonsSP.Visibility = Visibility.Visible;
+            mw.loadSelectedPage();
+            mw.deleteProfile(oldName);
+            mw.updateProfileItems();
+        }
+
+        private void cancelProfileDeleteB_Click(object sender, RoutedEventArgs e)
+        {
+            mainControlsSP.IsEnabled = true;
+            deleteDialogG.Visibility = Visibility.Collapsed;
+        }
+
         private void saveB_Click(object sender, RoutedEventArgs e)
         {
             string name = nameTB.Text;
@@ -100,7 +123,7 @@ namespace PixelPerfect.Pages
                 }
                 
                 profile.Add("version", versionsCB.SelectedItem.ToString());
-                profile.Add("custom", false);
+                profile.Add("custom", customCB.IsChecked);
                 profile.Add("javaArgs", javaParamsTB.Text);
 
                 mw.setProfile(oldName, name, profile);
@@ -119,11 +142,13 @@ namespace PixelPerfect.Pages
 
         private void selectIconB_Click(object sender, RoutedEventArgs e)
         {
+            mainControlsSP.IsEnabled = false;
             iconSelecionG.Visibility = Visibility.Visible;
         }
 
         private void cancelIconSelectB_Click(object sender, RoutedEventArgs e)
         {
+            mainControlsSP.IsEnabled = true;
             iconSelecionG.Visibility = Visibility.Collapsed;
         }
 
@@ -138,6 +163,7 @@ namespace PixelPerfect.Pages
             ImageBrush image = (ImageBrush)button.Background;
 
             selectIconB.Background = image;
+            mainControlsSP.IsEnabled = true;
             iconSelecionG.Visibility = Visibility.Collapsed;
 
             selectedIconPath = ((ImageBrush)selectIconB.Background).ImageSource.ToString();
@@ -159,9 +185,9 @@ namespace PixelPerfect.Pages
                 imageAttentionL.Visibility = Visibility.Visible;
             }
 
+            mainControlsSP.IsEnabled = true;
             iconSelecionG.Visibility = Visibility.Collapsed;
         }
-
 
         public void updateVersions(VersionManifest manifest)
         {
@@ -178,20 +204,27 @@ namespace PixelPerfect.Pages
             oldName = name;
 
             nameTB.Text = name;
-            versionsCB.SelectedValue = profile["version"].ToString();
-            javaParamsTB.Text = profile["javaArgs"].ToString();
+            versionsCB.SelectedValue = (string)profile["version"];
+            javaParamsTB.Text = (string)profile["javaArgs"];
+
+            if (string.IsNullOrWhiteSpace((string)profile["version"]))
+                versionsCB.SelectedIndex = 0;
 
             if (string.IsNullOrWhiteSpace(javaParamsTB.Text))
                 javaParamsTB.Text = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
 
-            iconData = profile["icon"].ToString();
+            iconData = (string)profile["icon"];
+            customCB.IsChecked = (bool)profile["custom"];
 
             BitmapImage img = Utils.BytesToImage(Convert.FromBase64String(iconData));
             selectIconB.Background = new ImageBrush(img);
 
-            selectIconB.IsEnabled = !(name == "Последний выпуск" || name == "Предварительная версия");
-            nameTB.IsEnabled = !(name == "Последний выпуск" || name == "Предварительная версия");
-            versionsCB.IsEnabled = !(name == "Последний выпуск" || name == "Предварительная версия");
+            bool isProfileDefault = !(name == MainWindow.RELEASE_VERSION_NAME || name == MainWindow.SNAPSHOT_VERSION_NAME);
+            selectIconB.IsEnabled = nameTB.IsEnabled = versionsCB.IsEnabled = customCB.IsEnabled = deleteL.IsEnabled = isProfileDefault;
+
+            mainControlsSP.IsEnabled = true;
+            iconSelecionG.Visibility = Visibility.Collapsed;
+            deleteDialogG.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -45,7 +45,7 @@
             <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
             <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
         </StackPanel>
-        <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Hidden">
+        <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
             <StackPanel x:Name="profilesSP"/>
         </ScrollViewer>
     </Grid>

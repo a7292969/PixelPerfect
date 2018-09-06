@@ -22,7 +22,7 @@ namespace PixelPerfect
         private GeneralPage generalPage;
         private Page settingsPage;
         private StatusPage statusPage;
-        private Page addProfilePage;
+        private AddProfilePage addProfilePage;
         private EditProfilePage editProfilePage;
 
         private JObject settings;
@@ -32,6 +32,9 @@ namespace PixelPerfect
 
         private BitmapImage grassIcon, craftingTableIcon;
         private string grassIconData, craftingTableIconData;
+
+        public static string RELEASE_VERSION_NAME = "Последний выпуск";
+        public static string SNAPSHOT_VERSION_NAME = "Предварительная версия";
 
         public MainWindow()
         {
@@ -62,6 +65,7 @@ namespace PixelPerfect
 
             versionManifest = Utils.GetMCVersions();
 
+            addProfilePage.loadVersionManifest(versionManifest);
             editProfilePage.updateVersions(versionManifest);
             updateProfileItems();
         }
@@ -103,6 +107,17 @@ namespace PixelPerfect
 
             DoubleAnimation anim1 = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
             downloadInfoGrid.BeginAnimation(OpacityProperty, anim1);
+
+            downloadPB.Value = 0;
+
+
+            JObject selectedProfile = getProfile((string)settings["selectedProfile"]);
+            string name = (string)selectedProfile["name"];
+            string version = (string)selectedProfile["version"];
+            string gamePath = (string)settings["gamePath"];
+            string path = (bool)selectedProfile["custom"] == true ? gamePath + "\\" + name + "\\" : gamePath + "\\";
+
+            startGame(version, path);
         }
 
         private void profilesB_Click(object sender, RoutedEventArgs e)
@@ -298,18 +313,25 @@ namespace PixelPerfect
 
             if (versionManifest != null)
             {
-                addProfileItem("Последний выпуск", versionManifest.latestVersion, grassIcon);
-                addProfileItem("Предварительная версия", versionManifest.latestSnapshot, craftingTableIcon);
+                addProfileItem(RELEASE_VERSION_NAME, versionManifest.latestVersion, grassIcon);
+                addProfileItem(SNAPSHOT_VERSION_NAME, versionManifest.latestSnapshot, craftingTableIcon);
             }
 
             JObject profiles = (JObject)settings["profiles"];
+
             foreach (JProperty property in profiles.Properties())
-            {
+            { 
                 JObject profile = (JObject)property.Value;
                 string name = property.Name;
-                string version = (string)profiles[name]["version"];
-                BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
-                addProfileItem(name, version, icon);
+
+                Console.WriteLine(name);
+
+                if (name != RELEASE_VERSION_NAME && name != SNAPSHOT_VERSION_NAME)
+                {
+                    string version = (string)profiles[name]["version"];
+                    BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
+                    addProfileItem(name, version, icon);
+                }
             }
         }
 
@@ -337,7 +359,7 @@ namespace PixelPerfect
             settings = new JObject();
             settings["gamePath"] = ppPath + "Minecraft";
             settings["profiles"] = new JObject();
-            settings["selectedProfile"] = "Последний выпуск";
+            settings["selectedProfile"] = RELEASE_VERSION_NAME;
 
             saveConfig();
         }
@@ -346,20 +368,22 @@ namespace PixelPerfect
         {
             JObject o;
 
-            if (name == "Последний выпуск")
+            if (name == RELEASE_VERSION_NAME)
             {
                 o = new JObject();
                 o["name"] = name;
                 o["icon"] = grassIconData;
                 o["version"] = versionManifest.latestVersion;
+                o["custom"] = false;
                 o["javaArgs"] = "";
             }
-            else if (name == "Предварительная версия")
+            else if (name == SNAPSHOT_VERSION_NAME)
             {
                 o = new JObject();
                 o["name"] = name;
                 o["icon"] = craftingTableIconData;
                 o["version"] = versionManifest.latestSnapshot;
+                o["custom"] = false;
                 o["javaArgs"] = "";
             }
             else
@@ -384,9 +408,29 @@ namespace PixelPerfect
             saveConfig();
         }
 
+        public void deleteProfile(string name)
+        {
+            settings["profiles"][name].Parent.Remove();
+
+            if (name == (string)settings["selectedProfile"])
+                settings["selectedProfile"] = RELEASE_VERSION_NAME;
+
+            saveConfig();
+        }
+
         public bool isProfileExists(string name)
         {
-            return settings["profiles"][name] != null;
+            return settings["profiles"][name] != null || name == RELEASE_VERSION_NAME || name == SNAPSHOT_VERSION_NAME;
+        }
+
+        public async void downloadVersion(string version)
+        {
+            await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+        }
+
+        public void startGame(string version, string path)
+        {
+            downloadVersion(version);
         }
     }
 }

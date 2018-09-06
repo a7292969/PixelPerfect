@@ -110,6 +110,66 @@ namespace PixelPerfect
             return new VersionManifest(versions, latest["release"].ToString(), latest["snapshot"].ToString());
         }
 
+        public static async Task<Dictionary<string, FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
+        {
+            string assetsPath = gamePath + "\\assets\\";
+            string librariesPath = gamePath + "\\libraries\\";
+            string versionsPath = gamePath + "\\versions\\";
+
+
+            // Main version file
+            string versionJsonPath = versionsPath + version + "\\" + version + ".json";
+            string versionJsonData;
+
+            Directory.CreateDirectory(Path.GetDirectoryName(versionJsonPath));
+            if (File.Exists(versionJsonPath))
+                versionJsonData = File.ReadAllText(versionJsonPath);
+            else
+            {
+                versionJsonData = await Connector.GetAsync(manifest.versions[version].resourcesURL);
+                File.AppendAllText(versionJsonPath, versionJsonData);
+            }
+
+
+            JObject verData = JObject.Parse(versionJsonData);
+
+
+            // Version index file
+            string assetIndexPath = assetsPath + "indexes\\" + (string)verData["assetIndex"]["id"] + ".json";
+            string assetIndexData;
+
+            Directory.CreateDirectory(Path.GetDirectoryName(assetIndexPath));
+            if (File.Exists(assetIndexPath))
+                assetIndexData = File.ReadAllText(assetIndexPath);
+            else
+            {
+                assetIndexData = await Connector.GetAsync((string)verData["assetIndex"]["url"]);
+                File.AppendAllText(assetIndexPath, assetIndexData);
+            }
+
+
+            Dictionary<string, FileToDownload> files = new Dictionary<string, FileToDownload>();
+
+            // Version jar file
+            files.Add(version + ".jar", new FileToDownload(versionsPath + version + "\\" + version + ".jar", (string)verData["downloads"]["client"]["url"]));
+
+            // Libraries
+            JArray libraries = (JArray)verData["libraries"];
+            foreach (JObject o in libraries)
+            {
+                if (o.ContainsKey("downloads"))
+                {
+                    string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
+                    string name = Path.GetFileName(path);
+                    string url = (string)o["downloads"]["artifact"]["url"];
+
+                    files.Add(name, new FileToDownload(path, url));
+                }
+            }
+
+            return files;
+        }
+
         public static string GenerateClientToken()
         {
             byte[] bytes = Encoding.UTF8.GetBytes("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");

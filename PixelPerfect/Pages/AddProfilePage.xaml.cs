@@ -14,6 +14,8 @@ namespace PixelPerfect.Pages
     {
         MainWindow mw = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
 
+        string latestVersion = "";
+
         public AddProfilePage()
         {
             InitializeComponent();
@@ -34,7 +36,7 @@ namespace PixelPerfect.Pages
 
                 JObject profile = new JObject();
                 profile.Add("icon", Convert.ToBase64String(bytes));
-                profile.Add("version", "none");
+                profile.Add("version", latestVersion);
                 profile.Add("custom", false);
                 profile.Add("javaArgs", "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M");
 
@@ -56,7 +58,13 @@ namespace PixelPerfect.Pages
 
         private void nameTB_TextChanged(object sender, TextChangedEventArgs e)
         {
+            saveB.IsEnabled = !string.IsNullOrWhiteSpace(nameTB.Text);
             existsAttentionL.Visibility = Visibility.Collapsed;
+        }
+
+        public void loadVersionManifest(VersionManifest manifest)
+        {
+            latestVersion = manifest.latestVersion;
         }
     }
 }
