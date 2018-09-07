@@ -29,8 +29,8 @@
         <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
             <Grid x:Name="downloadInfoGrid" Opacity="0">
                 <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
-                <Label x:Name="downloadInfoL" Content="..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
-                <Label x:Name="downloadLeftL" Content="..." HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                <Label x:Name="downloadInfoL" Content="Подготовка ..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
             </Grid>
             <Grid x:Name="basePlayInfoGrid">
                 <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>

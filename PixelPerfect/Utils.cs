@@ -111,8 +111,14 @@ namespace PixelPerfect
                 string type = obj["type"].ToString();
                 string url = obj["url"].ToString();
 
-                MCVersion version = new MCVersion(type, url);
-                versions.Add(id, version);
+                if (type != "old_alpha" && type != "old_beta")
+                {
+                    MCVersion version = new MCVersion(type, url);
+                    versions.Add(id, version);
+                }
+
+                if (id == "1.6.4")
+                    break;
             }
 
             JObject latest = (JObject)o["latest"];
@@ -122,6 +128,7 @@ namespace PixelPerfect
         public static async Task<List<FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
         {
             string assetsPath = gamePath + "\\assets\\";
+            string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
             string librariesPath = gamePath + "\\libraries\\";
             string versionsPath = gamePath + "\\versions\\";
 
@@ -170,12 +177,12 @@ namespace PixelPerfect
                 string name = (string)file["id"];
                 string url = (string)file["url"];
 
-                string loggingPath = assetsPath + "log_configs\\" + name;
+                string loggingpath = assetsPath + "log_configs\\" + name;
 
-                if (!File.Exists(loggingPath))
+                if (!File.Exists(loggingpath))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(loggingPath));
-                    File.AppendAllText(loggingPath, await Connector.GetAsync(url));
+                    Directory.CreateDirectory(Path.GetDirectoryName(loggingpath));
+                    File.AppendAllText(loggingpath, await Connector.GetAsync(url));
                 }
             }
 
@@ -188,11 +195,11 @@ namespace PixelPerfect
                     JArray rules = (JArray)o["rules"];
                     JObject rule0 = (JObject)rules[0];
 
-                    if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                    if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
                         continue;
                 }
 
-                if (o.ContainsKey("downloads"))
+                if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
                 {
                     string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
                     string name = Path.GetFileName(path);
@@ -203,17 +210,23 @@ namespace PixelPerfect
                     FileToDownload file = new FileToDownload(name, path, url, sha1, size);
                     if (!files.Contains(file))
                         files.Add(file);
+                }
 
-                    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
-                    {
-                        path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
-                        name = Path.GetFileName(path);
-                        url = (string)o["downloads"]["classifiers"]["natives-windows"]["url"];
-                        sha1 = (string)o["downloads"]["classifiers"]["natives-windows"]["sha1"];
-                        size = (long)o["downloads"]["classifiers"]["natives-windows"]["size"];
+                if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                {
+                    string keyname = "natives-windows";
 
-                        files.Add(new FileToDownload(name, path, url, sha1, size));
-                    }
+                    if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
+                        keyname = "natives-windows-64";
+
+                    string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
+                    string name = Path.GetFileName(path);
+                    string url = (string)o["downloads"]["classifiers"][keyname]["url"];
+                    string sha1 = (string)o["downloads"]["classifiers"][keyname]["sha1"];
+                    long size = (long)o["downloads"]["classifiers"][keyname]["size"];
+
+                    files.Add(new FileToDownload(name, path, url, sha1, size));
+
                 }
             }
 
@@ -228,7 +241,18 @@ namespace PixelPerfect
                 string subHash = hash.Substring(0, 2);
                 string path = assetsPath + "objects\\" + subHash + "\\" + hash;
 
-                FileToDownload file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+
+                FileToDownload file;
+
+                if ((string)verData["assets"] == "legacy")
+                {
+                    file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                }
+                else
+                {
+                    file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                }
+
                 if (!files.Contains(file))
                     files.Add(file);
             }
@@ -236,126 +260,125 @@ namespace PixelPerfect
             return files;
         }
 
-        public static void StartMinecraft(string version, string gamePath)
+        public static async Task<string> CreateMinecraftStartArgs(string version, string javaArgs, string gamePath, string profilePath, string username, string uuid, string accessToken)
         {
-            string nativesPath = Path.GetTempPath() + "\\PixelPerfectMCNatives";
-            string assetsPath = gamePath + "\\assets\\";
-            string librariesPath = gamePath + "\\libraries\\";
-            string versionsPath = gamePath + "\\versions\\";
-
-            string versionJsonPath = versionsPath + version + "\\" + version + ".json";
-            string versionJsonData = File.ReadAllText(versionJsonPath);
-            string jarPath = versionsPath + version + "\\" + version + ".jar";
-
-            List<string> librariesPaths = new List<string>();
-            List<string> nativeJarsPaths = new List<string>();
-
-
-            JObject verData = JObject.Parse(versionJsonData);
-
-            // Libraries
-            JArray libraries = (JArray)verData["libraries"];
-            foreach (JObject o in libraries)
+            return await Task.Run(() =>
             {
-                if (o.ContainsKey("rules"))
+                string nativesPath = Path.GetTempPath() + "\\PixelPerfectMCNatives";
+                string assetsPath = gamePath + "\\assets\\";
+                string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
+                string librariesPath = gamePath + "\\libraries\\";
+                string versionsPath = gamePath + "\\versions\\";
+
+                string versionJsonPath = versionsPath + version + "\\" + version + ".json";
+                string versionJsonData = File.ReadAllText(versionJsonPath);
+                string jarPath = versionsPath + version + "\\" + version + ".jar";
+
+                List<string> librariesPaths = new List<string>();
+                List<string> nativeJarsPaths = new List<string>();
+
+
+                JObject verData = JObject.Parse(versionJsonData);
+
+                // Libraries
+                JArray libraries = (JArray)verData["libraries"];
+                foreach (JObject o in libraries)
                 {
-                    JArray rules = (JArray)o["rules"];
-                    JObject rule0 = (JObject)rules[0];
+                    if (o.ContainsKey("rules"))
+                    {
+                        JArray rules = (JArray)o["rules"];
+                        JObject rule0 = (JObject)rules[0];
 
-                    if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
-                        continue;
-                }
+                        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                            continue;
+                    }
 
-                if (o.ContainsKey("downloads"))
-                {
-                    string path = ((string)o["name"]).Replace(":", "\\");
-                    string jarVersion = Path.GetFileName(path);
-                    string jarName = Directory.GetParent(path).Name;
+                    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
+                    {
+                        string path = ((string)o["name"]).Replace(":", "\\");
+                        string jarVersion = Path.GetFileName(path);
+                        string jarName = Directory.GetParent(path).Name;
 
-                    path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+                        path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
 
-                    if (!librariesPaths.Contains(path))
-                        librariesPaths.Add(path);
+                        if (!librariesPaths.Contains(path))
+                            librariesPaths.Add(path);
+                    }
 
                     if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
                     {
-                        path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
+                        string keyname = "natives-windows";
+
+                        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
+                            keyname = "natives-windows-64";
+
+                        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
 
                         if (!nativeJarsPaths.Contains(path))
                             nativeJarsPaths.Add(path);
                     }
                 }
-            }
 
-            foreach (string path in nativeJarsPaths)
-            {
-                using (ZipFile zip1 = ZipFile.Read(path))
+                // Natives
+                foreach (string path in nativeJarsPaths)
                 {
-                    foreach (ZipEntry e in zip1)
+                    using (ZipFile zip1 = ZipFile.Read(path))
                     {
-                        if (!e.FileName.Contains("META-INF"))
-                            e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
+                        foreach (ZipEntry e in zip1)
+                        {
+                            if (!e.FileName.Contains("META-INF"))
+                                e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
+                        }
                     }
                 }
-            }
-
-            //string args = "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xss1M";
 
 
-            //// Logging
-            //if (verData.ContainsKey("logging"))
-            //{
-            //    JObject file = (JObject)verData["logging"]["client"]["file"];
+                // Other Data
+                string mainClass = (string)verData["mainClass"];
+                string assetIndex = (string)verData["assetIndex"]["id"];
+                string versionType = (string)verData["type"];
 
-            //    string name = (string)file["id"];
-            //    string url = (string)file["url"];
+                string cAssetsPath = (string)verData["assets"] == "legacy" ? legacyAssetsPath : assetsPath;
 
-            //    string loggingPath = assetsPath + "log_configs\\" + name;
+                string librariesStr = "";
+                foreach (string path in librariesPaths)
+                    librariesStr += path + ";";
+                librariesStr += jarPath;
 
-            //    if (!File.Exists(loggingPath))
-            //    {
-            //        Directory.CreateDirectory(Path.GetDirectoryName(loggingPath));
-            //        File.AppendAllText(loggingPath, await Connector.GetAsync(url));
-            //    }
-            //}
+                string loggingPath = "LOG_CONFIG";
+                if (verData.ContainsKey("logging"))
+                {
+                    JObject file = (JObject)verData["logging"]["client"]["file"];
+                    string name = (string)file["id"];
+                    loggingPath = assetsPath + "log_configs\\" + name;
+                }
 
-            //// Libraries
-            //JArray libraries = (JArray)verData["libraries"];
-            //foreach (JObject o in libraries)
-            //{
-            //    if (o.ContainsKey("rules"))
-            //    {
-            //        JArray rules = (JArray)o["rules"];
-            //        JObject rule0 = (JObject)rules[0];
+                // Args pattern
+                string args = "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump " +
+                    "-Xss1M -Djava.library.path=NATIVES_PATH -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=3.0.0000 -cp DATA_LIBRARIES " +
+                    "JAVA_ARGS -Dlog4j.configurationFile=LOG_CONFIG MAIN_CLASS " +
+                    "--username DATA_USERNAME --version DATA_VERSION --gameDir DATA_GAMEDIR --assetsDir DATA_ASSETSDIR --assetIndex DATA_ASSETINDEX " +
+                    "--uuid DATA_UUID --accessToken DATA_ACCESSTOKEN --userProperties {} --userType DATA_USERTYPE --versionType DATA_TYPE";
 
-            //        if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
-            //            continue;
-            //    }
+                args = args.Replace("NATIVES_PATH", nativesPath);
+                args = args.Replace("DATA_LIBRARIES", librariesStr);
+                args = args.Replace("JAVA_ARGS", javaArgs);
+                args = args.Replace("LOG_CONFIG", loggingPath);
+                args = args.Replace("MAIN_CLASS", mainClass);
+                args = args.Replace("DATA_USERNAME", username);
+                args = args.Replace("DATA_VERSION", version);
+                args = args.Replace("DATA_GAMEDIR", profilePath);
+                args = args.Replace("DATA_ASSETSDIR", cAssetsPath);
+                args = args.Replace("DATA_ASSETINDEX", assetIndex);
+                args = args.Replace("DATA_UUID", uuid);
+                args = args.Replace("DATA_ACCESSTOKEN", accessToken);
+                args = args.Replace("DATA_USERTYPE", "mojang");
+                args = args.Replace("DATA_TYPE", versionType);
 
-            //    if (o.ContainsKey("downloads"))
-            //    {
-            //        string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
-            //        string name = Path.GetFileName(path);
-            //        string url = (string)o["downloads"]["artifact"]["url"];
-            //        string sha1 = (string)o["downloads"]["artifact"]["sha1"];
-            //        long size = (long)o["downloads"]["artifact"]["size"];
+                Console.WriteLine(args);
 
-            //        FileToDownload file = new FileToDownload(name, path, url, sha1, size);
-            //        if (!files.Contains(file))
-            //            files.Add(file);
-
-            //        if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
-            //        {
-            //            path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
-            //            name = Path.GetFileName(path);
-            //            url = (string)o["downloads"]["classifiers"]["natives-windows"]["url"];
-            //            sha1 = (string)o["downloads"]["classifiers"]["natives-windows"]["sha1"];
-            //            size = (long)o["downloads"]["classifiers"]["natives-windows"]["size"];
-
-            //            files.Add(new FileToDownload(name, path, url, sha1, size));
-            //        }
-            //    }
-            //}
+                return args;
+            });
         }
 
         public static string GenerateClientToken()

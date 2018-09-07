@@ -34,6 +34,8 @@ namespace PixelPerfect
         private BitmapImage grassIcon, craftingTableIcon;
         private string grassIconData, craftingTableIconData;
 
+        private bool isPlaying = false;
+
         public static string RELEASE_VERSION_NAME = "Последний выпуск";
         public static string SNAPSHOT_VERSION_NAME = "Предварительная версия";
 
@@ -73,7 +75,8 @@ namespace PixelPerfect
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            loadSelectedPage();
+            if (!isPlaying)
+                loadSelectedPage();
         }
 
         private void minecraftImage_MouseUp(object sender, MouseButtonEventArgs e)
@@ -100,7 +103,6 @@ namespace PixelPerfect
 
         private void playB_Click(object sender, RoutedEventArgs e)
         {
-            topButtonsSP.IsEnabled = false;
             profilesSV.Visibility = Visibility.Hidden;
             playButtonsSP.Visibility = Visibility.Hidden;
 
@@ -111,15 +113,17 @@ namespace PixelPerfect
             downloadInfoGrid.BeginAnimation(OpacityProperty, anim1);
 
             downloadPB.Value = 0;
-
+            downloadInfoL.Content = "Подготовка ...";
+            downloadLeftL.Content = string.Empty;
 
             JObject selectedProfile = getProfile((string)settings["selectedProfile"]);
             string name = (string)selectedProfile["name"];
             string version = (string)selectedProfile["version"];
+            string javaArgs = (string)selectedProfile["javaArgs"];
             string gamePath = (string)settings["gamePath"];
-            string path = (bool)selectedProfile["custom"] == true ? gamePath + "\\" + name + "\\" : gamePath + "\\";
+            string profilePath = (bool)selectedProfile["custom"] ? gamePath + "\\" + name : gamePath;
 
-            startGame(version, path);
+            startGame(version, javaArgs, gamePath, profilePath);
         }
 
         private void profilesB_Click(object sender, RoutedEventArgs e)
@@ -155,6 +159,9 @@ namespace PixelPerfect
 
         private void showPlayBar()
         {
+            if (isPlaying)
+                return;
+
             playButtonsSP.Visibility = Visibility.Visible;
 
             DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
@@ -376,8 +383,8 @@ namespace PixelPerfect
                 o["name"] = name;
                 o["icon"] = grassIconData;
                 o["version"] = versionManifest.latestVersion;
+                o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
                 o["custom"] = false;
-                o["javaArgs"] = "";
             }
             else if (name == SNAPSHOT_VERSION_NAME)
             {
@@ -385,12 +392,13 @@ namespace PixelPerfect
                 o["name"] = name;
                 o["icon"] = craftingTableIconData;
                 o["version"] = versionManifest.latestSnapshot;
+                o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
                 o["custom"] = false;
-                o["javaArgs"] = "";
             }
             else
             {
                 o = (JObject)settings["profiles"][name];
+                o["name"] = name;
             }
 
             return o;
@@ -425,26 +433,66 @@ namespace PixelPerfect
             return settings["profiles"][name] != null || name == RELEASE_VERSION_NAME || name == SNAPSHOT_VERSION_NAME;
         }
 
-        public async void startGame(string version, string path)
+        public async void startGame(string version, string javaArgs, string gamePath, string profilePath)
         {
-            List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+            //try
+            //{
+                isPlaying = true;
 
-            fileDownloader = new FileDownloader(files, this);
-            fileDownloader.OnProgressChanged += new FileDownloader.OnProgressChangedEventHandler((object sender, ProgressChangedEventArgs e) =>
+                List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+
+                fileDownloader = new FileDownloader(files, this);
+                fileDownloader.OnProgressChanged += new FileDownloader.OnProgressChangedEventHandler((object sender, ProgressChangedEventArgs e) =>
+                {
+                    long downloadLeftMB = (e.TotalSize - e.Downloaded) / 1024 / 1024;
+
+                    downloadPB.Value = e.Downloaded;
+                    downloadPB.Maximum = e.TotalSize;
+                    downloadInfoL.Content = e.CurrentFileName;
+                    downloadLeftL.Content = downloadLeftMB + "МБ осталось";
+                });
+                fileDownloader.OnCompleted += new FileDownloader.OnCompletedEventHandler(async (object sender) =>
+                {
+                    string args = await Utils.CreateMinecraftStartArgs(version, javaArgs, gamePath, profilePath, "MotanGish", "0", "0");
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo("javaw", args);
+
+                    Process proc = new Process();
+                    proc.Exited += minecraftProcess_Exited;
+                    proc.EnableRaisingEvents = true;
+                    proc.StartInfo = procStartInfo;
+
+                    proc.Start();
+                    Hide();
+                });
+
+                fileDownloader.Start();
+            //}
+            //catch
+            //{
+            //    prepareGameClose();
+            //}
+        }
+
+        private void prepareGameClose()
+        {
+            DoubleAnimation anim0 = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(0));
+            basePlayInfoGrid.BeginAnimation(OpacityProperty, anim0);
+
+            DoubleAnimation anim1 = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(0));
+            downloadInfoGrid.BeginAnimation(OpacityProperty, anim1);
+
+            playButtonsSP.Visibility = Visibility.Visible;
+
+            isPlaying = false;
+        }
+
+        private void minecraftProcess_Exited(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
             {
-                long downloadLeftMB = (e.TotalSize - e.Downloaded) / 1024 / 1024;
-
-                downloadPB.Value = e.Downloaded;
-                downloadPB.Maximum = e.TotalSize;
-                downloadInfoL.Content = e.CurrentFileName;
-                downloadLeftL.Content = downloadLeftMB + "МБ осталось";
+                prepareGameClose();
+                Show();
             });
-            fileDownloader.OnCompleted += new FileDownloader.OnCompletedEventHandler((object sender) =>
-            {
-                Utils.StartMinecraft(version, path);
-            });
-
-            await fileDownloader.Start();
         }
     }
 }

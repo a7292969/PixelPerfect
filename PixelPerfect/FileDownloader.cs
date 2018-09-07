@@ -33,7 +33,7 @@ namespace PixelPerfect
             webClient.DownloadFileCompleted += completed;
         }
 
-        public async Task Start()
+        public async void Start()
         {
             prevDownloadedSize = 0;
             prevDownloadingIndex = -1;
@@ -79,6 +79,12 @@ namespace PixelPerfect
 
         private void completed(object sender, AsyncCompletedEventArgs e)
         {
+            if (files[downloadingIndex].pathExt != null && !File.Exists(files[downloadingIndex].pathExt))
+            {
+                Directory.CreateDirectory(Directory.GetParent(files[downloadingIndex].pathExt).FullName);
+                File.Copy(files[downloadingIndex].path, files[downloadingIndex].pathExt);
+            }
+
             downloadingIndex++;
             downloadByIndex();
         }
