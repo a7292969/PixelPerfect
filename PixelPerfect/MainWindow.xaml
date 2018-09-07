@@ -16,7 +16,7 @@
             <Grid.Background>
                 <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
             </Grid.Background>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
+            <StackPanel x:Name="topButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
                 <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Главная" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
                 <local:MinecraftToggleButton x:Name="settingsTB" Height="36" Margin="20,0,0,0" MainText="Настройки" MouseUp="settingsTB_Clicked"/>
                 <local:MinecraftToggleButton x:Name="statusTB" Height="36" Margin="20,0,0,0" MainText="Статус" MouseUp="statusTB_Clicked"/>
@@ -29,8 +29,8 @@
         <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
             <Grid x:Name="downloadInfoGrid" Opacity="0">
                 <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
-                <Label x:Name="downloadInfoL" Content="Извлечение .... 1.6" HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="91.5" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
-                <Label x:Name="downloadLeftL" Content="1МБ осталось" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                <Label x:Name="downloadInfoL" Content="..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                <Label x:Name="downloadLeftL" Content="..." HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
             </Grid>
             <Grid x:Name="basePlayInfoGrid">
                 <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>

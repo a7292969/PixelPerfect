@@ -29,6 +29,7 @@ namespace PixelPerfect
         private string ppPath, configPath;
 
         private VersionManifest versionManifest;
+        private FileDownloader fileDownloader;
 
         private BitmapImage grassIcon, craftingTableIcon;
         private string grassIconData, craftingTableIconData;
@@ -39,8 +40,6 @@ namespace PixelPerfect
         public MainWindow()
         {
             InitializeComponent();
-
-            Console.WriteLine(Utils.computeFileHash("D:\\test"));
 
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
@@ -101,6 +100,7 @@ namespace PixelPerfect
 
         private void playB_Click(object sender, RoutedEventArgs e)
         {
+            topButtonsSP.IsEnabled = false;
             profilesSV.Visibility = Visibility.Hidden;
             playButtonsSP.Visibility = Visibility.Hidden;
 
@@ -425,23 +425,26 @@ namespace PixelPerfect
             return settings["profiles"][name] != null || name == RELEASE_VERSION_NAME || name == SNAPSHOT_VERSION_NAME;
         }
 
-        public async void downloadVersion(string version)
+        public async void startGame(string version, string path)
         {
             List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
 
-            FileDownloader d = new FileDownloader(files);
-            d.OnCompleted += new FileDownloader.OnCompletedEventHandler((object sender) =>
+            fileDownloader = new FileDownloader(files, this);
+            fileDownloader.OnProgressChanged += new FileDownloader.OnProgressChangedEventHandler((object sender, ProgressChangedEventArgs e) =>
             {
-                Console.WriteLine("DOWN LOADED !!!!!");
-            });
-            d.Start();
-            
-            
-        }
+                long downloadLeftMB = (e.TotalSize - e.Downloaded) / 1024 / 1024;
 
-        public void startGame(string version, string path)
-        {
-            downloadVersion(version);
+                downloadPB.Value = e.Downloaded;
+                downloadPB.Maximum = e.TotalSize;
+                downloadInfoL.Content = e.CurrentFileName;
+                downloadLeftL.Content = downloadLeftMB + "МБ осталось";
+            });
+            fileDownloader.OnCompleted += new FileDownloader.OnCompletedEventHandler((object sender) =>
+            {
+                Utils.StartMinecraft(version, path);
+            });
+
+            await fileDownloader.Start();
         }
     }
 }

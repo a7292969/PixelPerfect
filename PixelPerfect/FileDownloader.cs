@@ -3,51 +3,78 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PixelPerfect
 {
     public class FileDownloader
     {
-        private List<FileToDownload> files;
-        private long totalSize, downloadedSize;
+        private List<FileToDownload> files, allFiles;
+        private long totalSize, downloadedSize, prevDownloadedSize, prevDownloadingIndex;
         private int downloadingIndex;
         private WebClient webClient;
+        private MainWindow mw;
 
         public delegate void OnCompletedEventHandler(object sender);
-        public delegate void OnProgressChangedEventHandler(object sender, ProgressEventArgs e);
+        public delegate void OnProgressChangedEventHandler(object sender, ProgressChangedEventArgs e);
 
         public event OnCompletedEventHandler OnCompleted;
         public event OnProgressChangedEventHandler OnProgressChanged;
 
-        public FileDownloader(List<FileToDownload> files)
+        public FileDownloader(List<FileToDownload> files, MainWindow mw)
         {
-            this.files = files;
-
-            totalSize = 0;
-            foreach (FileToDownload file in files)
-            {
-                totalSize += file.size;
-            }
+            allFiles = files;
+            this.files = new List<FileToDownload>();
+            this.mw = mw;
 
             webClient = new WebClient();
             webClient.DownloadProgressChanged += changed;
             webClient.DownloadFileCompleted += completed;
         }
 
-        public void Start()
+        public async Task Start()
         {
+            prevDownloadedSize = 0;
+            prevDownloadingIndex = -1;
             downloadedSize = 0;
             downloadingIndex = 0;
+
+            await Task.Run(() => {
+                totalSize = 0;
+                files.Clear();
+                foreach (FileToDownload file in allFiles)
+                {
+                    if (!File.Exists(file.path))
+                    {
+                        totalSize += file.size;
+                        files.Add(file);
+                    }
+                }
+            });
 
             downloadByIndex();
         }
 
         private void changed(object sender, DownloadProgressChangedEventArgs e)
         {
-            downloadedSize += e.BytesReceived;
+            if (prevDownloadingIndex != downloadingIndex)
+            {
+                if (files[downloadingIndex].size != e.TotalBytesToReceive)
+                    Console.WriteLine(files[downloadingIndex].name + " " + files[downloadingIndex].size + " " + e.TotalBytesToReceive + " " + totalSize);
 
-            OnProgressChanged?.Invoke(this, new ProgressEventArgs(downloadedSize, totalSize, files[downloadingIndex].name));
+                prevDownloadedSize = 0;
+                //totalSize -= files[downloadingIndex].size - e.TotalBytesToReceive;
+            }
+
+            downloadedSize += e.BytesReceived - prevDownloadedSize;
+            prevDownloadedSize = e.BytesReceived;
+            prevDownloadingIndex = downloadingIndex;
+
+            try
+            {
+                mw.Dispatcher.Invoke(() => OnProgressChanged?.Invoke(this, new ProgressChangedEventArgs(downloadedSize, totalSize, files[downloadingIndex].name)));
+            } catch { Console.WriteLine("ERR"); }
         }
 
         private void completed(object sender, AsyncCompletedEventArgs e)
@@ -58,38 +85,28 @@ namespace PixelPerfect
 
         private void downloadByIndex()
         {
-            while (downloadingIndex < files.Count)
+            if (downloadingIndex == files.Count)
             {
-                string path = files[downloadingIndex].path;
-                string normalHash = files[downloadingIndex].hash;
-
-                if (File.Exists(path) && Utils.computeFileHash(path) == normalHash)
-                {
-                    downloadingIndex++;
-                }
-                else
-                {
-                    Directory.CreateDirectory(Directory.GetParent(path).FullName);
-                    webClient.DownloadFileAsync(new Uri(files[downloadingIndex].url), path);
-                    break;
-                }
+                mw.Dispatcher.Invoke(() => OnCompleted?.Invoke(this));
+                return;
             }
 
-            if (downloadingIndex == files.Count)
-                OnCompleted?.Invoke(this);
+            string path = files[downloadingIndex].path;
+            Directory.CreateDirectory(Directory.GetParent(path).FullName);
+            webClient.DownloadFileAsync(new Uri(files[downloadingIndex].url), path);
         }
     }
 
-    public class ProgressEventArgs : EventArgs
+    public class ProgressChangedEventArgs : EventArgs
     {
-        public long TotalDownloaded { get; private set; }
-        public long ToDownload { get; private set; }
+        public long Downloaded { get; private set; }
+        public long TotalSize { get; private set; }
         public string CurrentFileName { get; private set; }
 
-        public ProgressEventArgs(long totalDownloaded, long toDownload, string currentFilename)
+        public ProgressChangedEventArgs(long downloaded, long totalSize, string currentFilename)
         {
-            TotalDownloaded = totalDownloaded;
-            ToDownload = toDownload;
+            Downloaded = downloaded;
+            TotalSize = totalSize;
             CurrentFileName = currentFilename;
         }
     }

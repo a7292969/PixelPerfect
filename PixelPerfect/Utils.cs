@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Ionic.Zip;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,7 +22,6 @@ namespace PixelPerfect
 
         public static BitmapImage ImageFromResource(string path)
         {
-            Console.WriteLine(GetResourcePath(path));
             return new BitmapImage(new Uri(GetResourcePath(path), UriKind.Absolute));
         }
 
@@ -180,26 +180,18 @@ namespace PixelPerfect
             }
 
             // Libraries
-            
-            
-            
-            
-            
-            
-            
-            // TODO DISABLE OSX LIBRARIES
-
-
-
-
-
-
-
-
-
             JArray libraries = (JArray)verData["libraries"];
             foreach (JObject o in libraries)
             {
+                if (o.ContainsKey("rules"))
+                {
+                    JArray rules = (JArray)o["rules"];
+                    JObject rule0 = (JObject)rules[0];
+
+                    if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                        continue;
+                }
+
                 if (o.ContainsKey("downloads"))
                 {
                     string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
@@ -208,7 +200,9 @@ namespace PixelPerfect
                     string sha1 = (string)o["downloads"]["artifact"]["sha1"];
                     long size = (long)o["downloads"]["artifact"]["size"];
 
-                    files.Add(new FileToDownload(name, path, url, sha1, size));
+                    FileToDownload file = new FileToDownload(name, path, url, sha1, size);
+                    if (!files.Contains(file))
+                        files.Add(file);
 
                     if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
                     {
@@ -217,7 +211,6 @@ namespace PixelPerfect
                         url = (string)o["downloads"]["classifiers"]["natives-windows"]["url"];
                         sha1 = (string)o["downloads"]["classifiers"]["natives-windows"]["sha1"];
                         size = (long)o["downloads"]["classifiers"]["natives-windows"]["size"];
-
 
                         files.Add(new FileToDownload(name, path, url, sha1, size));
                     }
@@ -235,13 +228,134 @@ namespace PixelPerfect
                 string subHash = hash.Substring(0, 2);
                 string path = assetsPath + "objects\\" + subHash + "\\" + hash;
 
-                files.Add(new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size));
+                FileToDownload file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                if (!files.Contains(file))
+                    files.Add(file);
             }
 
-
-            Console.WriteLine(files.Count);
-
             return files;
+        }
+
+        public static void StartMinecraft(string version, string gamePath)
+        {
+            string nativesPath = Path.GetTempPath() + "\\PixelPerfectMCNatives";
+            string assetsPath = gamePath + "\\assets\\";
+            string librariesPath = gamePath + "\\libraries\\";
+            string versionsPath = gamePath + "\\versions\\";
+
+            string versionJsonPath = versionsPath + version + "\\" + version + ".json";
+            string versionJsonData = File.ReadAllText(versionJsonPath);
+            string jarPath = versionsPath + version + "\\" + version + ".jar";
+
+            List<string> librariesPaths = new List<string>();
+            List<string> nativeJarsPaths = new List<string>();
+
+
+            JObject verData = JObject.Parse(versionJsonData);
+
+            // Libraries
+            JArray libraries = (JArray)verData["libraries"];
+            foreach (JObject o in libraries)
+            {
+                if (o.ContainsKey("rules"))
+                {
+                    JArray rules = (JArray)o["rules"];
+                    JObject rule0 = (JObject)rules[0];
+
+                    if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                        continue;
+                }
+
+                if (o.ContainsKey("downloads"))
+                {
+                    string path = ((string)o["name"]).Replace(":", "\\");
+                    string jarVersion = Path.GetFileName(path);
+                    string jarName = Directory.GetParent(path).Name;
+
+                    path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+
+                    if (!librariesPaths.Contains(path))
+                        librariesPaths.Add(path);
+
+                    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                    {
+                        path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
+
+                        if (!nativeJarsPaths.Contains(path))
+                            nativeJarsPaths.Add(path);
+                    }
+                }
+            }
+
+            foreach (string path in nativeJarsPaths)
+            {
+                using (ZipFile zip1 = ZipFile.Read(path))
+                {
+                    foreach (ZipEntry e in zip1)
+                    {
+                        if (!e.FileName.Contains("META-INF"))
+                            e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                }
+            }
+
+            //string args = "-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xss1M";
+
+
+            //// Logging
+            //if (verData.ContainsKey("logging"))
+            //{
+            //    JObject file = (JObject)verData["logging"]["client"]["file"];
+
+            //    string name = (string)file["id"];
+            //    string url = (string)file["url"];
+
+            //    string loggingPath = assetsPath + "log_configs\\" + name;
+
+            //    if (!File.Exists(loggingPath))
+            //    {
+            //        Directory.CreateDirectory(Path.GetDirectoryName(loggingPath));
+            //        File.AppendAllText(loggingPath, await Connector.GetAsync(url));
+            //    }
+            //}
+
+            //// Libraries
+            //JArray libraries = (JArray)verData["libraries"];
+            //foreach (JObject o in libraries)
+            //{
+            //    if (o.ContainsKey("rules"))
+            //    {
+            //        JArray rules = (JArray)o["rules"];
+            //        JObject rule0 = (JObject)rules[0];
+
+            //        if ((string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+            //            continue;
+            //    }
+
+            //    if (o.ContainsKey("downloads"))
+            //    {
+            //        string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
+            //        string name = Path.GetFileName(path);
+            //        string url = (string)o["downloads"]["artifact"]["url"];
+            //        string sha1 = (string)o["downloads"]["artifact"]["sha1"];
+            //        long size = (long)o["downloads"]["artifact"]["size"];
+
+            //        FileToDownload file = new FileToDownload(name, path, url, sha1, size);
+            //        if (!files.Contains(file))
+            //            files.Add(file);
+
+            //        if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+            //        {
+            //            path = librariesPath + (string)o["downloads"]["classifiers"]["natives-windows"]["path"];
+            //            name = Path.GetFileName(path);
+            //            url = (string)o["downloads"]["classifiers"]["natives-windows"]["url"];
+            //            sha1 = (string)o["downloads"]["classifiers"]["natives-windows"]["sha1"];
+            //            size = (long)o["downloads"]["classifiers"]["natives-windows"]["size"];
+
+            //            files.Add(new FileToDownload(name, path, url, sha1, size));
+            //        }
+            //    }
+            //}
         }
 
         public static string GenerateClientToken()

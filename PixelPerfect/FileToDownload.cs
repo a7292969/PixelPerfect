@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixelPerfect
 {
-    public class FileToDownload
+    public class FileToDownload : IEquatable<FileToDownload>
     {
         public string name;
         public string path;
@@ -21,6 +17,11 @@ namespace PixelPerfect
             this.url = url;
             this.hash = hash;
             this.size = size;
+        }
+
+        public bool Equals(FileToDownload other)
+        {
+            return path == other.path;
         }
     }
 }
