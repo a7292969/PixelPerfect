@@ -56,12 +56,32 @@ namespace PixelPerfect
             }
         }
 
-        public static string computeFileHash(string path)
+        public static string ComputeFileHash(string path)
         {
             FileStream file = File.OpenRead(path);
             string hash = BitConverter.ToString(SHA1.Create().ComputeHash(file));
             hash = hash.Replace("-", string.Empty).ToLower();
             return hash;
+        }
+
+        public static string GenerateClientToken()
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+
+            Random random = new Random();
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                if (bytes[i] == '-')
+                    continue;
+
+                if (random.Next(100) >= 50)
+                    bytes[i] = Encoding.UTF8.GetBytes(random.Next(10).ToString())[0];
+                else
+                    bytes[i] = hexBytes[random.Next(6)];
+            }
+
+            return Encoding.UTF8.GetString(bytes);
         }
 
         public static async Task<Dictionary<string, string>> GetMojangStatus()
@@ -91,6 +111,40 @@ namespace PixelPerfect
             string response = await Connector.GetAsync("https://api.mojang.com/users/profiles/minecraft/" + username);
             JObject o = JObject.Parse(response);
             return (string)o["id"];
+        }
+
+        public static async Task<string> GetAccessData(string clientToken, string username, string password)
+        {
+            JObject payload = new JObject();
+            payload["username"] = username;
+            payload["password"] = password;
+            payload["clientToken"] = clientToken;
+
+            JObject agent = new JObject();
+            agent["name"] = "Minecraft";
+            agent["version"] = 1;
+
+            payload["agent"] = agent;
+
+            return await Connector.PostAsync("https://authserver.mojang.com/authenticate", payload.ToString());
+        }
+
+        public static string ValidateAccessData(string accessToken, string clientToken)
+        {
+            JObject payload = new JObject();
+            payload["accessToken"] = accessToken;
+            payload["clientToken"] = clientToken;
+
+            return Connector.Post("https://authserver.mojang.com/validate", payload.ToString());
+        }
+
+        public static string RefreshAccessData(string accessToken, string clientToken)
+        {
+            JObject payload = new JObject();
+            payload["accessToken"] = accessToken;
+            payload["clientToken"] = clientToken;
+
+            return Connector.Post("https://authserver.mojang.com/refresh", payload.ToString());
         }
 
         public static VersionManifest GetMCVersions()
@@ -260,7 +314,7 @@ namespace PixelPerfect
             return files;
         }
 
-        public static async Task<string> CreateMinecraftStartArgs(string version, string javaArgs, string gamePath, string profilePath, string username, string uuid, string accessToken)
+        public static async Task<string> CreateMinecraftStartArgs(string version, string javaArgs, string gamePath, string profilePath, string username, string uuid, string accessToken, int width, int height)
         {
             return await Task.Run(() =>
             {
@@ -358,7 +412,7 @@ namespace PixelPerfect
                     "-Xss1M -Djava.library.path=NATIVES_PATH -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=3.0.0000 -cp DATA_LIBRARIES " +
                     "JAVA_ARGS -Dlog4j.configurationFile=LOG_CONFIG MAIN_CLASS " +
                     "--username DATA_USERNAME --version DATA_VERSION --gameDir DATA_GAMEDIR --assetsDir DATA_ASSETSDIR --assetIndex DATA_ASSETINDEX " +
-                    "--uuid DATA_UUID --accessToken DATA_ACCESSTOKEN --userProperties {} --userType DATA_USERTYPE --versionType DATA_TYPE";
+                    "--uuid DATA_UUID --accessToken DATA_ACCESSTOKEN --userProperties {} --userType DATA_USERTYPE --versionType DATA_TYPE --width DATA_WIDTH --height DATA_HEIGHT";
 
                 args = args.Replace("NATIVES_PATH", nativesPath);
                 args = args.Replace("DATA_LIBRARIES", librariesStr);
@@ -374,31 +428,11 @@ namespace PixelPerfect
                 args = args.Replace("DATA_ACCESSTOKEN", accessToken);
                 args = args.Replace("DATA_USERTYPE", "mojang");
                 args = args.Replace("DATA_TYPE", versionType);
-
-                Console.WriteLine(args);
+                args = args.Replace("DATA_WIDTH", width.ToString());
+                args = args.Replace("DATA_HEIGHT", height.ToString());
 
                 return args;
             });
-        }
-
-        public static string GenerateClientToken()
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
-
-            Random random = new Random();
-
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                if (bytes[i] == '-')
-                    continue;
-
-                if (random.Next(100) >= 50)
-                    bytes[i] = Encoding.UTF8.GetBytes(random.Next(10).ToString())[0];
-                else
-                    bytes[i] = hexBytes[random.Next(6)];
-            }
-
-            return Encoding.UTF8.GetString(bytes);
         }
     }
 }

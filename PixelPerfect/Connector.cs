@@ -68,7 +68,7 @@ namespace PixelPerfect
             }
         }
 
-        public static async Task<string> PostAsync(string url, string data)
+        public static string Post(string url, string data)
         {
             try
             {
@@ -83,25 +83,57 @@ namespace PixelPerfect
                 request.Method = "POST";
 
                 using (Stream requestBody = request.GetRequestStream())
+                    requestBody.Write(dataBytes, 0, dataBytes.Length);
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    using (StreamReader reader = new StreamReader(stream))
+                        return reader.ReadToEnd();
+                }
+            }
+            catch (WebException e)
+            {
+                using (Stream stream = ((HttpWebResponse)e.Response).GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                    Console.WriteLine(reader.ReadToEnd());
+
+                return ((int)((HttpWebResponse)e.Response).StatusCode).ToString();
+            }
+        }
+
+        public static async Task<string> PostAsync(string url, string data)
+        {
+            try
+            {
+                if (!InternetAvailability.IsInternetAvailable())
+                    return "-1";
+
+                byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.ContentLength = dataBytes.Length;
+                request.ContentType = "application/json";
+                request.Method = "POST";
+
+                using (Stream requestBody = await request.GetRequestStreamAsync())
                     await requestBody.WriteAsync(dataBytes, 0, dataBytes.Length);
 
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                 {
-                    if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
-                    {
                         using (Stream stream = response.GetResponseStream())
                         using (StreamReader reader = new StreamReader(stream))
                             return await reader.ReadToEndAsync();
-                    }
-                    else
-                    {
-                        return "-1";
-                    }
                 }
             }
-            catch
+            catch (WebException e)
             {
-                return "-1";
+                using (Stream stream = ((HttpWebResponse)e.Response).GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                    Console.WriteLine(await reader.ReadToEndAsync());
+
+                
+                return ((int)((HttpWebResponse)e.Response).StatusCode).ToString();
             }
         }
     }

@@ -683,18 +683,16 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">
-                    <Grid Height="34" MaxHeight="37" Cursor="IBeam" SnapsToDevicePixels="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border x:Name="border1" BorderThickness="0" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Background="#9951B018" Margin="0" Grid.ColumnSpan="2" SnapsToDevicePixels="False">
+                    <Grid Cursor="IBeam" SnapsToDevicePixels="True">
+                        <Border x:Name="effectBorder" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#9951B018" Margin="0" SnapsToDevicePixels="True" Visibility="Visible">
                             <Border.Effect>
                                 <BlurEffect Radius="0" RenderingBias="Quality" KernelType="Box"/>
                             </Border.Effect>
                         </Border>
-                        <Border x:Name="border" BorderThickness="2" SnapsToDevicePixels="True" BorderBrush="Black" Grid.Row="0" Background="#FF377711" Grid.ColumnSpan="2"/>
-                        <Border x:Name="border2" BorderBrush="#FFE4E4E4" BorderThickness="2" HorizontalAlignment="Stretch" Height="Auto" VerticalAlignment="Stretch" Width="Auto" Margin="2" Background="White" SnapsToDevicePixels="True" Grid.ColumnSpan="2">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" VerticalAlignment="Stretch" Margin="3,-2,3,0" HorizontalAlignment="Stretch" FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,4,0,0" SnapsToDevicePixels="True"/>
+                        <Border x:Name="border" BorderThickness="2" SnapsToDevicePixels="True" BorderBrush="Black" Background="{x:Null}" VerticalAlignment="Stretch" Visibility="Visible" Margin="0">
+                            <Border x:Name="border2" BorderBrush="#FFE4E4E4" BorderThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="White" SnapsToDevicePixels="True" d:LayoutOverrides="LeftPosition, RightPosition, TopPosition, BottomPosition" Visibility="Visible">
+                                <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" VerticalAlignment="Stretch" Margin="3,-2,3,0" HorizontalAlignment="Stretch" FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,4,0,0" SnapsToDevicePixels="True" Visibility="Visible"/>
+                            </Border>
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
@@ -705,12 +703,12 @@
                             <Setter Property="Opacity" TargetName="PART_ContentHost" Value="0.35"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="true">
-                            <Setter Property="Effect" TargetName="border1">
+                            <Setter Property="Effect" TargetName="effectBorder">
                                 <Setter.Value>
                                     <BlurEffect KernelType="Box" Radius="2" RenderingBias="Quality"/>
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Margin" TargetName="border1" Value="-1"/>
+                            <Setter Property="Margin" TargetName="effectBorder" Value="-1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -1530,5 +1528,62 @@
             </Setter.Value>
         </Setter>
     </Style>
-
+    <Style x:Key="MCPasswordBox" TargetType="{x:Type PasswordBox}">
+        <Setter Property="PasswordChar" Value="●"/>
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TextBox.Static.Border}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="AllowDrop" Value="true"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type PasswordBox}">
+                    <Grid Cursor="IBeam" SnapsToDevicePixels="True">
+                        <Border x:Name="effectBorder" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#9951B018" Margin="0" SnapsToDevicePixels="True" Visibility="Visible">
+                            <Border.Effect>
+                                <BlurEffect Radius="0" RenderingBias="Quality" KernelType="Box"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border x:Name="border" BorderThickness="2" SnapsToDevicePixels="True" BorderBrush="Black" Background="{x:Null}" VerticalAlignment="Stretch" Visibility="Visible" Margin="0">
+                            <Border x:Name="border2" BorderBrush="#FFE4E4E4" BorderThickness="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Background="White" SnapsToDevicePixels="True" d:LayoutOverrides="LeftPosition, RightPosition, TopPosition, BottomPosition" Visibility="Visible">
+                                <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" VerticalAlignment="Center" Margin="3,0" HorizontalAlignment="Stretch" FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" SnapsToDevicePixels="True" Visibility="Visible"/>
+                            </Border>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="BorderBrush" TargetName="border" Value="#FF9F9F9F"/>
+                            <Setter Property="BorderBrush" TargetName="border2" Value="#FFC7C7C7"/>
+                            <Setter Property="Background" TargetName="border2" Value="#FFD9D9D9"/>
+                            <Setter Property="Opacity" TargetName="PART_ContentHost" Value="0.35"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="true">
+                            <Setter Property="Effect" TargetName="effectBorder">
+                                <Setter.Value>
+                                    <BlurEffect KernelType="Box" Radius="2" RenderingBias="Quality"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Margin" TargetName="effectBorder" Value="-1"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInactiveSelectionHighlightEnabled" Value="true"/>
+                    <Condition Property="IsSelectionActive" Value="false"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="SelectionBrush" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

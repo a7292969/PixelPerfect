@@ -5,17 +5,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixelPerfect.Pages
 {
@@ -102,8 +96,6 @@ namespace PixelPerfect.Pages
         {
             string name = nameTB.Text;
 
-            Console.WriteLine(name + " " + oldName);
-
             if (name != oldName && mw.isProfileExists(name))
             {
                 existsAttentionL.Visibility = Visibility.Visible;
@@ -189,12 +181,40 @@ namespace PixelPerfect.Pages
             iconSelecionG.Visibility = Visibility.Collapsed;
         }
 
-        public void updateVersions(VersionManifest manifest)
+        public void updateVersions(VersionManifest manifest, string versionsPath, bool showSnapshots)
         {
             versionsCB.Items.Clear();
 
             foreach (KeyValuePair<string, MCVersion> version in manifest.versions)
-                versionsCB.Items.Add(version.Key);
+            {
+                if (version.Value.type == "snapshot" && showSnapshots || version.Value.type != "snapshot")
+                    versionsCB.Items.Add(version.Key);
+            }
+
+            if (Directory.Exists(versionsPath))
+            {
+                foreach (string versionDir in Directory.GetDirectories(versionsPath))
+                {
+                    string versionName = Path.GetFileName(versionDir);
+
+                    if (versionsCB.Items.Contains(versionName))
+                        continue;
+
+                    string versionJsonPath = versionDir + "\\" + versionName + ".json";
+                    if (File.Exists(versionJsonPath))
+                    {
+                        try
+                        {
+                            JObject obj = JObject.Parse(File.ReadAllText(versionJsonPath));
+                            string type = (string)obj["type"];
+
+                            if (type == "snapshot" && showSnapshots || type != "snapshot")
+                                versionsCB.Items.Add(versionName);
+                        }
+                        catch { }
+                    }
+                }
+            }
 
             versionsCB.SelectedIndex = 0;
         }

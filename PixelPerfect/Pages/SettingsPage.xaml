@@ -9,22 +9,23 @@
       Title="SettingsPage">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" SnapsToDevicePixels="True">
-            <Label Content="Папка игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,5,0,0">
-                <TextBox x:Name="pathTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" Text="Path" HorizontalAlignment="Center" Width="400" SnapsToDevicePixels="False" Margin="0,0,12,0"/>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" UseLayoutRounding="False">
+            <Label Content="Папка игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,5,0,0" UseLayoutRounding="True">
+                <TextBox x:Name="pathTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" Text="Path" HorizontalAlignment="Center" Width="400" Margin="0,0,12,0" Height="34" IsReadOnly="True"/>
                 <Button x:Name="selectFolderB" Content="" Style="{DynamicResource FolderButton}" Margin="0" Width="22" Height="22" Click="selectFolderB_Click">
                     <Button.Background>
                         <ImageBrush ImageSource="/PixelPerfect;component/Images/folder.png" Stretch="Uniform"/>
                     </Button.Background>
                 </Button>
             </StackPanel>
-            <Label Content="Разрешение окна игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,9,0,0"/>
+            <Label Content="Разрешение окна игры" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,5,0,0">
-                <TextBox Text="854" Width="80" Style="{DynamicResource MinecraftTextBox}" />
+                <TextBox x:Name="widthTB" Text="854" Width="80" Style="{DynamicResource MinecraftTextBox}" LostFocus="widthTB_LostFocus" PreviewTextInput="widthTB_PreviewTextInput" Height="34" />
                 <Label Content="✕" FontSize="13" Foreground="#FF444444" Style="{DynamicResource CustomLabel}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0"/>
-                <TextBox Text="480" Width="80" Style="{DynamicResource MinecraftTextBox}" />
+                <TextBox x:Name="heightTB" Text="480" Width="80" Style="{DynamicResource MinecraftTextBox}" LostFocus="heightTB_LostFocus" PreviewTextInput="heightTB_PreviewTextInput" />
             </StackPanel>
+            <CheckBox x:Name="showSnapshotsCB" Content="Показывать предварительные версии" Style="{DynamicResource MCCheckBox}" HorizontalAlignment="Left" Margin="0,15,0,0" FontSize="16" Foreground="#FF444444" Click="showSnapshotsCB_Click"/>
         </StackPanel>
 
     </Grid>

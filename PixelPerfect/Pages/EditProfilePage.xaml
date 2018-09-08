@@ -16,7 +16,7 @@
             <Label x:Name="deleteL" Content="Удалить [X]" Style="{DynamicResource GreenHyperLabel}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,33" FontSize="14" MouseUp="deleteL_MouseUp"/>
             <Label Content="Название" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444"/>
             <StackPanel VerticalAlignment="Center" Margin="0,-2,0,0" Orientation="Horizontal">
-                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0" Text="Новая конфигурация" TextChanged="nameTB_TextChanged"/>
+                <TextBox x:Name="nameTB" HorizontalAlignment="Center" VerticalAlignment="Center" Width="500" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0" Text="Новая конфигурация" TextChanged="nameTB_TextChanged" Height="34"/>
                 <Button x:Name="selectIconB" Content="" Height="48" Width="48" Margin="10,0,0,0" Style="{DynamicResource SelectIconButton}" Click="selectIconB_Click">
                     <Button.Background>
                         <ImageBrush ImageSource="/PixelPerfect;component/Images/Blocks/Furnace.png" TileMode="Tile"/>
@@ -26,7 +26,7 @@
             <Label Content="Версия" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,3,0,0"/>
             <ComboBox x:Name="versionsCB" Margin="0,5,0,0" FontSize="14" VerticalAlignment="Center" Style="{DynamicResource MCComboBox}" Height="34" SelectedIndex="0"/>
             <Label Content="Параметры Java" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
-            <TextBox x:Name="javaParamsTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0,6,0,0" Text="-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M"/>
+            <TextBox x:Name="javaParamsTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0,6,0,0" Text="-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M" Height="34"/>
             <CheckBox x:Name="customCB" Content="Отдельная папка" HorizontalAlignment="Left" Margin="0,15,0,0" FontSize="16" Style="{DynamicResource MCCheckBox}" Foreground="#FF444444"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,20,0,0">
                 <Button x:Name="saveB" Content="СОХРАНИТЬ" FontSize="14" Style="{DynamicResource MCButton}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Height="37" Width="160" FontFamily="Century Gothic" FontWeight="Bold" Click="saveB_Click"/>

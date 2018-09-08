@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,7 +21,7 @@ namespace PixelPerfect
     public partial class MainWindow : Window
     {
         private GeneralPage generalPage;
-        private Page settingsPage;
+        private SettingsPage settingsPage;
         private StatusPage statusPage;
         private AddProfilePage addProfilePage;
         private EditProfilePage editProfilePage;
@@ -68,14 +69,40 @@ namespace PixelPerfect
 
             versionManifest = Utils.GetMCVersions();
 
-            addProfilePage.loadVersionManifest(versionManifest);
-            editProfilePage.updateVersions(versionManifest);
+            if (versionManifest == null)
+            {
+                versionManifest = new VersionManifest(new Dictionary<string, MCVersion>(), "", "");
+            }
+            else
+            {
+                addProfilePage.loadVersionManifest(versionManifest);
+                updateGamePath();
+            } 
+
             updateProfileItems();
+
+            string responce = Utils.ValidateAccessData((string)settings["accessToken"], (string)settings["clientToken"]);
+
+            if (responce == "403")
+            {
+                responce = Utils.RefreshAccessData((string)settings["accessToken"], (string)settings["clientToken"]);
+
+                try
+                {
+                    JObject data = JObject.Parse(responce);
+                    settings["accessToken"] = (string)data["accessToken"];
+                    saveConfig();
+                }
+                catch { responce = "403"; }
+            }
+
+            if ((string)settings["accessToken"] == "0" || (string)settings["uuid"] == "0" || (string)settings["clientToken"] == "0" || responce == "403")
+                loadLogin();
         }
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            if (!isPlaying)
+            if (!isPlaying && loginG.Visibility == Visibility.Hidden)
                 loadSelectedPage();
         }
 
@@ -157,14 +184,75 @@ namespace PixelPerfect
             loadStatusPage();
         }
 
+        private async void loginB_Click(object sender, RoutedEventArgs e)
+        {
+            await loadLogin();
+
+            string username = emailTB.Text;
+            string password = passwordTB.Password;
+
+            if ((string)settings["clientToken"] == "0")
+                settings["clientToken"] = Utils.GenerateClientToken();
+
+            incorrectLoginL.Visibility = Visibility.Collapsed;
+            unknownLoginErrorL.Visibility = Visibility.Collapsed;
+
+            string accessData = await Utils.GetAccessData((string)settings["clientToken"], username, password);
+
+            try
+            {
+                JObject data = JObject.Parse(accessData);
+
+                string playerName = (string)data["selectedProfile"]["name"];
+                settings["uuid"] = await Utils.GetPlayerUUID(playerName);
+                settings["accessToken"] = (string)data["accessToken"];
+                settings["playerName"] = playerName;
+                settings["loginUsername"] = username;
+                closeLogin();
+                loadSelectedPage();
+            }
+            catch
+            {
+                if (accessData == "403")
+                {
+                    passwordTB.Password = string.Empty;
+                    incorrectLoginL.Visibility = Visibility.Visible;
+                }
+                else if (!InternetAvailability.IsInternetAvailable())
+                {
+                    unknownLoginErrorL.Visibility = Visibility.Visible;
+                    unknownLoginErrorL.Content = "Нет подключения к интернету.";
+                }
+                else
+                {
+                    unknownLoginErrorL.Visibility = Visibility.Visible;
+                    unknownLoginErrorL.Content = accessData;
+                }
+            }
+
+            saveConfig();
+        }
+
+        private void emailTB_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            loginB.IsEnabled = !string.IsNullOrWhiteSpace(emailTB.Text) && !string.IsNullOrWhiteSpace(passwordTB.Password);
+        }
+
+        private void passwordTB_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            loginB.IsEnabled = !string.IsNullOrWhiteSpace(emailTB.Text) && !string.IsNullOrWhiteSpace(passwordTB.Password);
+        }
+
         private void showPlayBar()
         {
             if (isPlaying)
                 return;
 
+            int h = 80;
+
             playButtonsSP.Visibility = Visibility.Visible;
 
-            DoubleAnimation anim0 = new DoubleAnimation(80, TimeSpan.FromMilliseconds(200));
+            DoubleAnimation anim0 = new DoubleAnimation(h, TimeSpan.FromMilliseconds(200));
 
             QuarticEase easingFunction = new QuarticEase();
             easingFunction.EasingMode = EasingMode.EaseInOut;
@@ -175,13 +263,20 @@ namespace PixelPerfect
                 DoubleAnimation anim = new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(300));
                 anim.EasingFunction = easingFunction;
                 playButtonsSP.BeginAnimation(OpacityProperty, anim);
-
-                Thickness margin = frameSV.Margin;
-                margin.Bottom = bottomG.Height;
-                frameSV.Margin = margin;
             });
 
+            
+            Thickness start = frameSV.Margin;
+            start.Bottom = bottomG.Height;
+            Thickness end = frameSV.Margin;
+            end.Bottom = 80;
+
+            ThicknessAnimation mAnim = new ThicknessAnimation(start, end, TimeSpan.FromMilliseconds(200));
+            mAnim.EasingFunction = easingFunction;
+
+
             bottomG.BeginAnimation(HeightProperty, anim0);
+            frameSV.BeginAnimation(MarginProperty, mAnim);
         }
 
         private void hidePlayBar()
@@ -229,6 +324,7 @@ namespace PixelPerfect
 
         public void loadSettingsPage()
         {
+            settingsPage.loadSettings(settings);
             navigatePage(settingsPage, false, false);
             showPlayBar();
         }
@@ -284,11 +380,60 @@ namespace PixelPerfect
                 frameSV.Content = frame;
         }
 
+        public async Task loadLogin()
+        {
+            loginG.Visibility = Visibility.Visible;
+
+            if (!string.IsNullOrWhiteSpace((string)settings["loginUsername"]))
+                emailTB.Text = (string)settings["loginUsername"];
+
+            Dictionary<string, string> status = await Utils.GetMojangStatus();
+
+            if (status == null)
+                return;
+
+            switch (status["authserver.mojang.com"])
+            {
+                case "green":
+                    authIcon.Source = statusPage.statusGreen;
+                    authText.Content = "Сервис работает нормально.";
+                    break;
+                case "yellow":
+                    authIcon.Source = statusPage.statusYellow;
+                    authText.Content = "Имеются некоторые проблемы.";
+                    break;
+                case "red":
+                    authIcon.Source = statusPage.statusRed;
+                    authText.Content = "Сервис временно недоступен.";
+                    break;
+                case "message":
+                    authIcon.Source = statusPage.statusMessage;
+                    authText.Content = "Сервис обновляется.";
+                    break;
+                case "update":
+                    authIcon.Source = statusPage.statusUpdate;
+                    authText.Content = "Сервис обновляется.";
+                    break;
+            }
+        }
+
+        public void closeLogin()
+        {
+            loginG.Visibility = Visibility.Hidden;
+        }
+
+        public void updateGamePath()
+        {
+            editProfilePage.updateVersions(versionManifest, (string)settings["gamePath"] + "\\versions\\", (bool)settings["showSnapshots"]);
+            updateProfileItems();
+        }
+
         public void clearProfileItems()
         {
             profilesSP.Children.Clear();
         }
 
+        bool selectedProfileExistsInList = false;
         public void addProfileItem(string mainText, string subText, BitmapImage icon)
         {
             ProfileItem item = new ProfileItem();
@@ -304,8 +449,18 @@ namespace PixelPerfect
             {
                 ProfileItem i = (ProfileItem)sender;
                 settings["selectedProfile"] = i.MainText;
-                selectedProfileNameL.Content = i.MainText + " - " + i.SubText;
                 saveConfig();
+
+                DoubleAnimation anim0 = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(110));
+                anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
+                {
+                    selectedProfileNameL.Content = i.MainText + " - " + i.SubText;
+
+                    DoubleAnimation anim1 = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(110));
+                    selectedProfileNameL.BeginAnimation(OpacityProperty, anim1);
+                });
+
+                selectedProfileNameL.BeginAnimation(OpacityProperty, anim0);
             });
 
             profilesSP.Children.Add(item);
@@ -313,17 +468,23 @@ namespace PixelPerfect
             // Check for selected
             string selectedProfile = settings["selectedProfile"].ToString();
             if (selectedProfile == mainText)
+            {
                 selectedProfileNameL.Content = item.MainText + " - " + item.SubText;
+                selectedProfileExistsInList = true;
+            }
         }
 
         public void updateProfileItems()
         {
             clearProfileItems();
+            selectedProfileExistsInList = false;
 
             if (versionManifest != null)
             {
                 addProfileItem(RELEASE_VERSION_NAME, versionManifest.latestVersion, grassIcon);
-                addProfileItem(SNAPSHOT_VERSION_NAME, versionManifest.latestSnapshot, craftingTableIcon);
+
+                if ((bool)settings["showSnapshots"])
+                    addProfileItem(SNAPSHOT_VERSION_NAME, versionManifest.latestSnapshot, craftingTableIcon);
             }
 
             JObject profiles = (JObject)settings["profiles"];
@@ -333,14 +494,52 @@ namespace PixelPerfect
                 JObject profile = (JObject)property.Value;
                 string name = property.Name;
 
-                Console.WriteLine(name);
-
                 if (name != RELEASE_VERSION_NAME && name != SNAPSHOT_VERSION_NAME)
                 {
                     string version = (string)profiles[name]["version"];
-                    BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
-                    addProfileItem(name, version, icon);
+                    string versionDir = (string)settings["gamePath"] + "\\versions\\" + version + "\\";
+                    string versionJsonPath = versionDir + "\\" + version + ".json";
+
+                    if (File.Exists(versionJsonPath))
+                    {
+                        try
+                        {
+                            JObject obj = JObject.Parse(File.ReadAllText(versionJsonPath));
+                            string type = (string)obj["type"];
+
+                            if (type == "snapshot" && (bool)settings["showSnapshots"] || type != "snapshot")
+                            {
+                                BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
+                                addProfileItem(name, version, icon);
+                            }
+                        }
+                        catch { }
+                    }
+                    else
+                    {
+                        if (versionManifest.versions.ContainsKey(version))
+                        {
+                            string type = versionManifest.versions[version].type;
+                            if (type == "snapshot" && (bool)settings["showSnapshots"] || type != "snapshot")
+                            {
+                                BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
+                                addProfileItem(name, version, icon);
+                            }
+                        }
+                        else
+                        {
+                            BitmapImage icon = Utils.BytesToImage(Convert.FromBase64String(profiles[name]["icon"].ToString()));
+                            addProfileItem(name, version, icon);
+                        }
+                    }
                 }
+            }
+
+            // Check for selected
+            if (!selectedProfileExistsInList)
+            {
+                settings["selectedProfile"] = RELEASE_VERSION_NAME;
+                selectedProfileNameL.Content = RELEASE_VERSION_NAME + " - " + versionManifest.latestVersion;
             }
         }
 
@@ -350,6 +549,29 @@ namespace PixelPerfect
                 try
                 {
                     settings = JObject.Parse(File.ReadAllText(configPath));
+
+                    if (!settings.ContainsKey("gamePath"))
+                        settings["gamePath"] = ppPath + "Minecraft";
+                    if (!settings.ContainsKey("profiles"))
+                        settings["profiles"] = new JObject();
+                    if (!settings.ContainsKey("selectedProfile"))
+                        settings["selectedProfile"] = RELEASE_VERSION_NAME;
+                    if (!settings.ContainsKey("showSnapshots"))
+                        settings["showSnapshots"] = false;
+                    if (!settings.ContainsKey("width"))
+                        settings["width"] = 854;
+                    if (!settings.ContainsKey("height"))
+                        settings["height"] = 480;
+                    if (!settings.ContainsKey("uuid"))
+                        settings["uuid"] = "0";
+                    if (!settings.ContainsKey("accessToken"))
+                        settings["accessToken"] = "0";
+                    if (!settings.ContainsKey("clientToken"))
+                        settings["clientToken"] = "0";
+                    if (!settings.ContainsKey("loginUsername"))
+                        settings["loginUsername"] = string.Empty;
+
+                    saveConfig();
                 }
                 catch { createNewConfig(); }
             else createNewConfig();
@@ -363,12 +585,30 @@ namespace PixelPerfect
             File.WriteAllText(configPath, JToken.Parse(JsonConvert.SerializeObject(settings)).ToString(Formatting.Indented));
         }
 
+        public JObject getConfig()
+        {
+            return settings;
+        }
+
+        public void setConfig(JObject config)
+        {
+            settings = config;
+            saveConfig();
+        }
+
         public void createNewConfig()
         {
             settings = new JObject();
             settings["gamePath"] = ppPath + "Minecraft";
             settings["profiles"] = new JObject();
             settings["selectedProfile"] = RELEASE_VERSION_NAME;
+            settings["showSnapshots"] = false;
+            settings["width"] = 854;
+            settings["height"] = 480;
+            settings["uuid"] = "0";
+            settings["accessToken"] = "0";
+            settings["clientToken"] = "0";
+            settings["loginUsername"] = string.Empty;
 
             saveConfig();
         }
@@ -435,8 +675,8 @@ namespace PixelPerfect
 
         public async void startGame(string version, string javaArgs, string gamePath, string profilePath)
         {
-            //try
-            //{
+            try
+            {
                 isPlaying = true;
 
                 List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
@@ -453,8 +693,10 @@ namespace PixelPerfect
                 });
                 fileDownloader.OnCompleted += new FileDownloader.OnCompletedEventHandler(async (object sender) =>
                 {
-                    string args = await Utils.CreateMinecraftStartArgs(version, javaArgs, gamePath, profilePath, "MotanGish", "0", "0");
+                    string args = await Utils.CreateMinecraftStartArgs(version, javaArgs, gamePath, profilePath, (string)settings["playerName"], (string)settings["uuid"],
+                        (string)settings["accessToken"], (int)settings["width"], (int)settings["height"]);
                     ProcessStartInfo procStartInfo = new ProcessStartInfo("javaw", args);
+                    procStartInfo.WorkingDirectory = profilePath;
 
                     Process proc = new Process();
                     proc.Exited += minecraftProcess_Exited;
@@ -466,11 +708,11 @@ namespace PixelPerfect
                 });
 
                 fileDownloader.Start();
-            //}
-            //catch
-            //{
-            //    prepareGameClose();
-            //}
+            }
+            catch
+            {
+                prepareGameClose();
+            }
         }
 
         private void prepareGameClose()

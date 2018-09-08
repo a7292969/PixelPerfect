@@ -12,41 +12,74 @@
         <Grid.Background>
             <ImageBrush ImageSource="Images/block_marble.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,256,256"/>
         </Grid.Background>
-        <Grid Height="120" VerticalAlignment="Top">
-            <Grid.Background>
-                <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
-            </Grid.Background>
-            <StackPanel x:Name="topButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
-                <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Главная" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
-                <local:MinecraftToggleButton x:Name="settingsTB" Height="36" Margin="20,0,0,0" MainText="Настройки" MouseUp="settingsTB_Clicked"/>
-                <local:MinecraftToggleButton x:Name="statusTB" Height="36" Margin="20,0,0,0" MainText="Статус" MouseUp="statusTB_Clicked"/>
-            </StackPanel>
-        </Grid>
-        <Image x:Name="minecraftImage" HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True" Cursor="Hand" MouseUp="minecraftImage_MouseUp"/>
-        <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/crap.png" Height="25" SnapsToDevicePixels="True" Margin="22,22,0,0" Width="25"/>
-        <Grid x:Name="frameG" Margin="0,120,0,80"/>
-        <ScrollViewer x:Name="frameSV" Margin="0,120,0,80" AutomationProperties.IsOffscreenBehavior="Onscreen" Template="{DynamicResource ModernScrollViewer}"/>
-        <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
-            <Grid x:Name="downloadInfoGrid" Opacity="0">
-                <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
-                <Label x:Name="downloadInfoL" Content="Подготовка ..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
-                <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+        <Grid x:Name="launcherG">
+            <Grid Height="120" VerticalAlignment="Top">
+                <Grid.Background>
+                    <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
+                </Grid.Background>
+                <StackPanel x:Name="topButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
+                    <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Главная" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
+                    <local:MinecraftToggleButton x:Name="settingsTB" Height="36" Margin="20,0,0,0" MainText="Настройки" MouseUp="settingsTB_Clicked"/>
+                    <local:MinecraftToggleButton x:Name="statusTB" Height="36" Margin="20,0,0,0" MainText="Статус" MouseUp="statusTB_Clicked"/>
+                </StackPanel>
             </Grid>
-            <Grid x:Name="basePlayInfoGrid">
-                <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
+            <Image x:Name="minecraftImage" HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True" Cursor="Hand" MouseUp="minecraftImage_MouseUp"/>
+            <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/crap.png" Height="25" SnapsToDevicePixels="True" Margin="22,22,0,0" Width="25"/>
+            <Grid x:Name="frameG" Margin="0,120,0,80"/>
+            <ScrollViewer x:Name="frameSV" Margin="0,120,0,80" AutomationProperties.IsOffscreenBehavior="Onscreen" Template="{DynamicResource ModernScrollViewer}"/>
+            <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
+                <Grid x:Name="downloadInfoGrid" Opacity="0">
+                    <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
+                    <Label x:Name="downloadInfoL" Content="Подготовка ..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                    <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
+                </Grid>
+                <Grid x:Name="basePlayInfoGrid">
+                    <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
+                    <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
+                    <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                    <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                </Grid>
+            </Grid>
+            <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                <Button x:Name="addProfileB" Content="" Width="34" Height="63" Style="{DynamicResource AddProfileButton}" Margin="0,0,-3,0" Click="addProfileB_Click"/>
+                <Button x:Name="editProfileB" Content="" Width="34" Height="63" Style="{DynamicResource EditProfileButton}" Margin="0,0,-3,0" Click="editProfileB_Click"/>
+                <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
+                <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
+            </StackPanel>
+            <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                <StackPanel x:Name="profilesSP"/>
+            </ScrollViewer>
+        </Grid>
+        <Grid x:Name="loginG" Visibility="Hidden">
+            <Grid.Background>
+                <ImageBrush ImageSource="Images/block_marble.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,256,256"/>
+            </Grid.Background>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,50">
+                    <Image x:Name="authIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/status_message.png" Height="40" Width="40"/>
+                    <Label Content="Authentication service" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
+                    <Label x:Name="authText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
+                </Grid>
+                <Label Content="Электронная почта или имя" Style="{DynamicResource CustomLabel}" Foreground="#FF444444" FontSize="15"/>
+                <TextBox x:Name="emailTB" Height="37" Style="{DynamicResource MinecraftTextBox}" Width="600" Margin="0,8,0,0" TextChanged="emailTB_TextChanged"/>
+                <Label Content="Пароль" Style="{DynamicResource CustomLabel}" Foreground="#FF444444" FontSize="15" Margin="0,20,0,0"/>
+                <PasswordBox x:Name="passwordTB" Width="600" Height="37" Margin="0,8,0,0" FontSize="12" Style="{DynamicResource MCPasswordBox}" PasswordChanged="passwordTB_PasswordChanged"/>
+                <Button x:Name="loginB" Content="ВОЙТИ" Width="120" Style="{DynamicResource MCButton}" Height="37" FontSize="15" Margin="0,34,0,0" Foreground="White" FontFamily="Century Gothic" FontWeight="Bold" Click="loginB_Click" IsEnabled="False"/>
+                <Label x:Name="incorrectLoginL" Content="Неверное имя пользователя или пароль." HorizontalAlignment="Center" Style="{DynamicResource AttentionLabel}" VerticalAlignment="Center" Margin="0,15,0,0" Width="600" Height="32" FontSize="14" Visibility="Collapsed"/>
+                <Label x:Name="unknownLoginErrorL" Content="..." HorizontalAlignment="Center" Style="{DynamicResource AttentionLabel}" VerticalAlignment="Center" Margin="0,15,0,0" Width="600" Height="32" Visibility="Collapsed"/>
+            </StackPanel>
+            <Grid Height="70" VerticalAlignment="Top">
+                <Grid.Background>
+                    <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
+                </Grid.Background>
+                <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True" Cursor="Hand" MouseUp="minecraftImage_MouseUp"/>
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/crap.png" Height="25" SnapsToDevicePixels="True" Margin="22,22,0,0" Width="25"/>
+            </Grid>
+            <Grid  Height="41" VerticalAlignment="Bottom" Background="Black">
                 <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
-                <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,20" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                 <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
             </Grid>
         </Grid>
-        <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
-            <Button x:Name="addProfileB" Content="" Width="34" Height="63" Style="{DynamicResource AddProfileButton}" Margin="0,0,-3,0" Click="addProfileB_Click"/>
-            <Button x:Name="editProfileB" Content="" Width="34" Height="63" Style="{DynamicResource EditProfileButton}" Margin="0,0,-3,0" Click="editProfileB_Click"/>
-            <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
-            <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
-        </StackPanel>
-        <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
-            <StackPanel x:Name="profilesSP"/>
-        </ScrollViewer>
     </Grid>
 </Window>
