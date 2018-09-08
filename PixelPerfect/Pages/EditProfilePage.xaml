@@ -9,7 +9,7 @@
       Title="EditProfilePage">
 
     <Grid MaxWidth="800">
-        <StackPanel x:Name="mainControlsSP" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" Margin="121,40.505,121,35.172">
+        <StackPanel x:Name="mainControlsSP" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" Margin="121,37,121,31">
             <Label x:Name="existsAttentionL" Content="Конфигурация с таким названием уже существует." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label x:Name="imageAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label Content="Редактировать конфиругацию" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>

@@ -45,8 +45,11 @@ namespace PixelPerfect.Pages
                 nameTB.Text = string.Empty;
 
                 mw.playButtonsSP.Visibility = Visibility.Visible;
-                mw.loadSelectedPage();
                 mw.updateProfileItems();
+
+
+                mw.selectProfile(name);
+                mw.editSelectedProfile();
             }
         }
 

@@ -179,68 +179,33 @@ namespace PixelPerfect
             return new VersionManifest(versions, latest["release"].ToString(), latest["snapshot"].ToString());
         }
 
-        public static async Task<List<FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
+        public static JObject getVersionData(string version, string gamePath)
         {
-            string assetsPath = gamePath + "\\assets\\";
-            string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
+            string path = gamePath + "\\versions\\" + version + "\\" + version + ".json";
+            return JObject.Parse(File.ReadAllText(path));
+        }
+
+        public static string getOriginalVersionPath(string checkVersion, string gamePath)
+        {
+            JObject ver = JObject.Parse(File.ReadAllText(gamePath + "\\versions\\" + checkVersion + "\\" + checkVersion + ".json"));
+
+            if (ver.ContainsKey("inheritsFrom"))
+            {
+                string version = (string)ver["inheritsFrom"];
+                return getOriginalVersionPath(version, gamePath);
+            }
+            else
+            {
+                string version = (string)ver["id"];
+                return gamePath + "\\versions\\" + version + "\\" + version + ".json";
+            }
+        }
+
+        public static List<FileToDownload> getAllLibrariesToDownload(JObject verData, string gamePath)
+        {
             string librariesPath = gamePath + "\\libraries\\";
-            string versionsPath = gamePath + "\\versions\\";
-
-
-            // Main version file
-            string versionJsonPath = versionsPath + version + "\\" + version + ".json";
-            string versionJsonData;
-
-            Directory.CreateDirectory(Path.GetDirectoryName(versionJsonPath));
-            if (File.Exists(versionJsonPath))
-                versionJsonData = File.ReadAllText(versionJsonPath);
-            else
-            {
-                versionJsonData = await Connector.GetAsync(manifest.versions[version].resourcesURL);
-                File.AppendAllText(versionJsonPath, versionJsonData);
-            }
-
-
-            JObject verData = JObject.Parse(versionJsonData);
-
-
-            // Version index file
-            string assetIndexPath = assetsPath + "indexes\\" + (string)verData["assetIndex"]["id"] + ".json";
-            string assetIndexData;
-
-            Directory.CreateDirectory(Path.GetDirectoryName(assetIndexPath));
-            if (File.Exists(assetIndexPath))
-                assetIndexData = File.ReadAllText(assetIndexPath);
-            else
-            {
-                assetIndexData = await Connector.GetAsync((string)verData["assetIndex"]["url"]);
-                File.AppendAllText(assetIndexPath, assetIndexData);
-            }
-
-
             List<FileToDownload> files = new List<FileToDownload>();
 
-            // Version jar file
-            files.Add(new FileToDownload(version + ".jar", versionsPath + version + "\\" + version + ".jar", (string)verData["downloads"]["client"]["url"], (string)verData["downloads"]["client"]["sha1"], (long)verData["downloads"]["client"]["size"]));
-
-            // Logging
-            if (verData.ContainsKey("logging"))
-            {
-                JObject file = (JObject)verData["logging"]["client"]["file"];
-
-                string name = (string)file["id"];
-                string url = (string)file["url"];
-
-                string loggingpath = assetsPath + "log_configs\\" + name;
-
-                if (!File.Exists(loggingpath))
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(loggingpath));
-                    File.AppendAllText(loggingpath, await Connector.GetAsync(url));
-                }
-            }
-
-            // Libraries
             JArray libraries = (JArray)verData["libraries"];
             foreach (JObject o in libraries)
             {
@@ -266,6 +231,32 @@ namespace PixelPerfect
                         files.Add(file);
                 }
 
+                if (o.ContainsKey("name"))
+                {
+                    string path = ((string)o["name"]).Replace(":", "\\");
+                    string jarVersion = Path.GetFileName(path);
+                    string jarName = Directory.GetParent(path).Name;
+
+                    path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+
+                    string urlPath = ((string)o["name"]).Replace(":", "/");
+                    urlPath = urlPath.Replace(jarName + "/" + jarVersion, string.Empty).Replace(".", "/") + jarName + "/" + jarVersion + "/" + jarName + "-" + jarVersion + ".jar";
+                    string url;
+                    
+                    if (o.ContainsKey("url"))
+                        url = (string)o["url"] + "/" + urlPath;
+                    else
+                        url = "https://libraries.minecraft.net/" + urlPath;
+
+                    string fileName = jarName + "-" + jarVersion + ".jar";
+
+                    Console.WriteLine(path);
+
+                    FileToDownload file = new FileToDownload(fileName, path, url, "0", 0);
+                    if (!files.Contains(file))
+                        files.Add(file);
+                }
+
                 if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
                 {
                     string keyname = "natives-windows";
@@ -284,34 +275,242 @@ namespace PixelPerfect
                 }
             }
 
-            // Assets
-            JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
-            foreach (JProperty prop in assets.Properties())
+            return files;
+        }
+
+        public static List<FileToDownload> ParseInheritsDownloads(JObject json, string gamePath)
+        {
+            List<FileToDownload> files = new List<FileToDownload>();
+
+            files.AddRange(getAllLibrariesToDownload(json, gamePath));
+
+            if (json.ContainsKey("inheritsFrom"))
             {
-                JObject o = (JObject)prop.Value;
-
-                string hash = (string)o["hash"];
-                long size = (long)o["size"];
-                string subHash = hash.Substring(0, 2);
-                string path = assetsPath + "objects\\" + subHash + "\\" + hash;
-
-
-                FileToDownload file;
-
-                if ((string)verData["assets"] == "legacy")
-                {
-                    file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
-                }
-                else
-                {
-                    file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
-                }
-
-                if (!files.Contains(file))
-                    files.Add(file);
+                JObject inher = getVersionData((string)json["inheritsFrom"], gamePath);
+                files.AddRange(ParseInheritsDownloads(inher, gamePath));
             }
 
             return files;
+        }
+
+        public static VersionStartData getAllLibraries(JObject json, string gamePath)
+        {
+            string librariesPath = gamePath + "\\libraries\\";
+
+            VersionStartData data = new VersionStartData();
+
+            JArray libraries = (JArray)json["libraries"];
+            foreach (JObject o in libraries)
+            {
+                if (o.ContainsKey("rules"))
+                {
+                    JArray rules = (JArray)o["rules"];
+                    JObject rule0 = (JObject)rules[0];
+
+                    if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                        continue;
+                }
+
+
+                if (o.ContainsKey("name"))
+                {
+                    string path = ((string)o["name"]).Replace(":", "\\");
+                    string jarVersion = Path.GetFileName(path);
+                    string jarName = Directory.GetParent(path).Name;
+
+                    path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+
+                    if (!data.libraryPaths.Contains(path))
+                        data.libraryPaths.Add(path);
+                }
+
+
+                if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                {
+                    string keyname = "natives-windows";
+
+                    if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
+                        keyname = "natives-windows-64";
+
+                    string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
+
+                    if (!data.nativeJarsPaths.Contains(path))
+                        data.nativeJarsPaths.Add(path);
+                }
+            }
+
+            return data;
+        }
+
+        public static VersionStartData ParseInherits(JObject json, string gamePath)
+        {
+            VersionStartData data = new VersionStartData();
+
+            data.Add(getAllLibraries(json, gamePath));
+
+            if (json.ContainsKey("inheritsFrom"))
+            {
+                JObject inher = getVersionData((string)json["inheritsFrom"], gamePath);
+                data.Add(ParseInherits(inher, gamePath));
+            }
+            else
+            {
+                string version = (string)json["id"];
+                string jarPath = gamePath + "\\versions\\" + version + "\\" + version + ".jar";
+                data.libraryPaths.Add(jarPath);
+            }
+
+            return data;
+        }
+
+        public static async Task<List<FileToDownload>> GetFilesForDownload(string version, string gamePath, VersionManifest manifest)
+        {
+            return await Task.Run(() =>
+            {
+                string assetsPath = gamePath + "\\assets\\";
+                string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
+                string librariesPath = gamePath + "\\libraries\\";
+                string versionsPath = gamePath + "\\versions\\";
+
+
+                // Main version file
+                string originalVersionJsonPath = getOriginalVersionPath(version, gamePath);
+                string originalVersionJsonData;
+
+                string versionJsonPath = versionsPath + version + "\\" + version + ".json";
+                string versionJsonData;
+
+                if (originalVersionJsonPath == versionJsonPath)
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(versionJsonPath));
+                    if (File.Exists(versionJsonPath))
+                        versionJsonData = File.ReadAllText(versionJsonPath);
+                    else
+                    {
+                        versionJsonData = Connector.Get(manifest.versions[version].resourcesURL);
+                        File.AppendAllText(versionJsonPath, versionJsonData);
+                    }
+
+                    originalVersionJsonData = versionJsonData;
+                }
+                else
+                {
+                    originalVersionJsonData = File.ReadAllText(originalVersionJsonPath);
+                    versionJsonData = File.ReadAllText(versionJsonPath);
+                }
+
+
+
+                JObject originalVerData = JObject.Parse(originalVersionJsonData);
+                JObject verData = JObject.Parse(versionJsonData);
+
+
+                // Version index file
+                string assetIndexPath = assetsPath + "indexes\\" + (string)originalVerData["assetIndex"]["id"] + ".json";
+                string assetIndexData;
+
+                Directory.CreateDirectory(Path.GetDirectoryName(assetIndexPath));
+                if (File.Exists(assetIndexPath))
+                    assetIndexData = File.ReadAllText(assetIndexPath);
+                else
+                {
+                    assetIndexData = Connector.Get((string)verData["assetIndex"]["url"]);
+                    File.AppendAllText(assetIndexPath, assetIndexData);
+                }
+
+
+                List<FileToDownload> files = new List<FileToDownload>();
+
+                // Version jar file
+                files.Add(new FileToDownload(version + ".jar", versionsPath + version + "\\" + version + ".jar", (string)originalVerData["downloads"]["client"]["url"], (string)originalVerData["downloads"]["client"]["sha1"], (long)originalVerData["downloads"]["client"]["size"]));
+
+                // Logging
+                if (verData.ContainsKey("logging"))
+                {
+                    JObject file = (JObject)originalVerData["logging"]["client"]["file"];
+
+                    string name = (string)file["id"];
+                    string url = (string)file["url"];
+
+                    string loggingpath = assetsPath + "log_configs\\" + name;
+
+                    if (!File.Exists(loggingpath))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(loggingpath));
+                        File.AppendAllText(loggingpath, Connector.Get(url));
+                    }
+                }
+
+                // Libraries
+                files.AddRange(ParseInheritsDownloads(verData, gamePath));
+                //JArray libraries = (JArray)verData["libraries"];
+                //foreach (JObject o in libraries)
+                //{
+                //    if (o.ContainsKey("rules"))
+                //    {
+                //        JArray rules = (JArray)o["rules"];
+                //        JObject rule0 = (JObject)rules[0];
+
+                //        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                //            continue;
+                //    }
+
+                //    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
+                //    {
+                //        string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
+                //        string name = Path.GetFileName(path);
+                //        string url = (string)o["downloads"]["artifact"]["url"];
+                //        string sha1 = (string)o["downloads"]["artifact"]["sha1"];
+                //        long size = (long)o["downloads"]["artifact"]["size"];
+
+                //        FileToDownload file = new FileToDownload(name, path, url, sha1, size);
+                //        if (!files.Contains(file))
+                //            files.Add(file);
+                //    }
+
+                //    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                //    {
+                //        string keyname = "natives-windows";
+
+                //        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
+                //            keyname = "natives-windows-64";
+
+                //        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
+                //        string name = Path.GetFileName(path);
+                //        string url = (string)o["downloads"]["classifiers"][keyname]["url"];
+                //        string sha1 = (string)o["downloads"]["classifiers"][keyname]["sha1"];
+                //        long size = (long)o["downloads"]["classifiers"][keyname]["size"];
+
+                //        files.Add(new FileToDownload(name, path, url, sha1, size));
+
+                //    }
+                //}
+
+                // Assets
+                JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
+                foreach (JProperty prop in assets.Properties())
+                {
+                    JObject o = (JObject)prop.Value;
+
+                    string hash = (string)o["hash"];
+                    long size = (long)o["size"];
+                    string subHash = hash.Substring(0, 2);
+                    string path = assetsPath + "objects\\" + subHash + "\\" + hash;
+
+
+                    FileToDownload file;
+
+                    if ((string)verData["assets"] == "legacy")
+                        file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                    else
+                        file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+
+                    if (!files.Contains(file))
+                        files.Add(file);
+                }
+
+                return files;
+            });
         }
 
         public static async Task<string> CreateMinecraftStartArgs(string version, string javaArgs, string gamePath, string profilePath, string username, string uuid, string accessToken, int width, int height)
@@ -324,64 +523,76 @@ namespace PixelPerfect
                 string librariesPath = gamePath + "\\libraries\\";
                 string versionsPath = gamePath + "\\versions\\";
 
+
+                string originalVersionJsonPath = getOriginalVersionPath(version, gamePath);
+                string originalVersionJsonData = File.ReadAllText(originalVersionJsonPath);
+
                 string versionJsonPath = versionsPath + version + "\\" + version + ".json";
                 string versionJsonData = File.ReadAllText(versionJsonPath);
+
+
+
                 string jarPath = versionsPath + version + "\\" + version + ".jar";
 
-                List<string> librariesPaths = new List<string>();
-                List<string> nativeJarsPaths = new List<string>();
+                //List<string> librariesPaths = new List<string>();
+                //List<string> nativeJarsPaths = new List<string>();
 
-
+                JObject originalVerData = JObject.Parse(originalVersionJsonData);
                 JObject verData = JObject.Parse(versionJsonData);
 
+                VersionStartData versionStartData = ParseInherits(verData, gamePath);
+
                 // Libraries
-                JArray libraries = (JArray)verData["libraries"];
-                foreach (JObject o in libraries)
-                {
-                    if (o.ContainsKey("rules"))
-                    {
-                        JArray rules = (JArray)o["rules"];
-                        JObject rule0 = (JObject)rules[0];
+                //JArray libraries = (JArray)verData["libraries"];
+                //foreach (JObject o in libraries)
+                //{
+                //    if (o.ContainsKey("rules"))
+                //    {
+                //        JArray rules = (JArray)o["rules"];
+                //        JObject rule0 = (JObject)rules[0];
 
-                        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
-                            continue;
-                    }
+                //        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
+                //            continue;
+                //    }
 
-                    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
-                    {
-                        string path = ((string)o["name"]).Replace(":", "\\");
-                        string jarVersion = Path.GetFileName(path);
-                        string jarName = Directory.GetParent(path).Name;
+                //    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
+                //    {
+                //        string path = ((string)o["name"]).Replace(":", "\\");
+                //        string jarVersion = Path.GetFileName(path);
+                //        string jarName = Directory.GetParent(path).Name;
 
-                        path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+                //        path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
 
-                        if (!librariesPaths.Contains(path))
-                            librariesPaths.Add(path);
-                    }
+                //        if (!librariesPaths.Contains(path))
+                //            librariesPaths.Add(path);
+                //    }
 
-                    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
-                    {
-                        string keyname = "natives-windows";
+                //    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
+                //    {
+                //        string keyname = "natives-windows";
 
-                        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
-                            keyname = "natives-windows-64";
+                //        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
+                //            keyname = "natives-windows-64";
 
-                        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
+                //        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
 
-                        if (!nativeJarsPaths.Contains(path))
-                            nativeJarsPaths.Add(path);
-                    }
-                }
+                //        if (!nativeJarsPaths.Contains(path))
+                //            nativeJarsPaths.Add(path);
+                //    }
+                //}
 
                 // Natives
-                foreach (string path in nativeJarsPaths)
+                foreach (string path in versionStartData.nativeJarsPaths)
                 {
                     using (ZipFile zip1 = ZipFile.Read(path))
                     {
                         foreach (ZipEntry e in zip1)
                         {
-                            if (!e.FileName.Contains("META-INF"))
-                                e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
+                            try
+                            {
+                                if (!e.FileName.Contains("META-INF"))
+                                    e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
+                            } catch { }
                         }
                     }
                 }
@@ -389,20 +600,20 @@ namespace PixelPerfect
 
                 // Other Data
                 string mainClass = (string)verData["mainClass"];
-                string assetIndex = (string)verData["assetIndex"]["id"];
+                string assetIndex = (string)originalVerData["assetIndex"]["id"];
                 string versionType = (string)verData["type"];
 
                 string cAssetsPath = (string)verData["assets"] == "legacy" ? legacyAssetsPath : assetsPath;
 
                 string librariesStr = "";
-                foreach (string path in librariesPaths)
+                foreach (string path in versionStartData.libraryPaths)
                     librariesStr += path + ";";
-                librariesStr += jarPath;
+                //librariesStr += jarPath;
 
                 string loggingPath = "LOG_CONFIG";
                 if (verData.ContainsKey("logging"))
                 {
-                    JObject file = (JObject)verData["logging"]["client"]["file"];
+                    JObject file = (JObject)originalVerData["logging"]["client"]["file"];
                     string name = (string)file["id"];
                     loggingPath = assetsPath + "log_configs\\" + name;
                 }
@@ -414,15 +625,42 @@ namespace PixelPerfect
                     "--username DATA_USERNAME --version DATA_VERSION --gameDir DATA_GAMEDIR --assetsDir DATA_ASSETSDIR --assetIndex DATA_ASSETINDEX " +
                     "--uuid DATA_UUID --accessToken DATA_ACCESSTOKEN --userProperties {} --userType DATA_USERTYPE --versionType DATA_TYPE --width DATA_WIDTH --height DATA_HEIGHT";
 
-                args = args.Replace("NATIVES_PATH", nativesPath);
-                args = args.Replace("DATA_LIBRARIES", librariesStr);
+
+
+
+
+
+
+
+                // TODO
+
+                // ADD --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker TO THE END OF ARGS
+                // USE EXISTING 'minecraftArguments' IN VERSION FILE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                args = args.Replace("NATIVES_PATH", "\"" + nativesPath + "\"");
+                args = args.Replace("DATA_LIBRARIES", "\"" + librariesStr + "\"");
                 args = args.Replace("JAVA_ARGS", javaArgs);
-                args = args.Replace("LOG_CONFIG", loggingPath);
+                args = args.Replace("LOG_CONFIG", "\"" + loggingPath + "\"");
                 args = args.Replace("MAIN_CLASS", mainClass);
                 args = args.Replace("DATA_USERNAME", username);
                 args = args.Replace("DATA_VERSION", version);
-                args = args.Replace("DATA_GAMEDIR", profilePath);
-                args = args.Replace("DATA_ASSETSDIR", cAssetsPath);
+                args = args.Replace("DATA_GAMEDIR", "\"" + profilePath + "\"");
+                args = args.Replace("DATA_ASSETSDIR", "\"" + cAssetsPath.TrimEnd(Path.DirectorySeparatorChar) + "\"");
                 args = args.Replace("DATA_ASSETINDEX", assetIndex);
                 args = args.Replace("DATA_UUID", uuid);
                 args = args.Replace("DATA_ACCESSTOKEN", accessToken);
@@ -431,6 +669,7 @@ namespace PixelPerfect
                 args = args.Replace("DATA_WIDTH", width.ToString());
                 args = args.Replace("DATA_HEIGHT", height.ToString());
 
+                Console.WriteLine(args);
                 return args;
             });
         }

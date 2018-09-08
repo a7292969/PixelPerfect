@@ -120,12 +120,7 @@ namespace PixelPerfect
 
         private void editProfileB_Click(object sender, RoutedEventArgs e)
         {
-            string selectedProfile = settings["selectedProfile"].ToString();
-            editProfilePage.load(selectedProfile, getProfile(selectedProfile));
-
-            profilesSV.Visibility = Visibility.Hidden;
-            hidePlayBar();
-            navigatePage(editProfilePage, false, false);
+            editSelectedProfile();
         }
 
         private void playB_Click(object sender, RoutedEventArgs e)
@@ -433,6 +428,36 @@ namespace PixelPerfect
             profilesSP.Children.Clear();
         }
 
+        public void selectProfile(string name)
+        {
+            settings["selectedProfile"] = name;
+            saveConfig();
+
+            JObject profile = getProfile(name);
+            string version = (string)profile["version"];
+
+            DoubleAnimation anim0 = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(110));
+            anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
+            {
+                selectedProfileNameL.Content = name + " - " + version;
+
+                DoubleAnimation anim1 = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(110));
+                selectedProfileNameL.BeginAnimation(OpacityProperty, anim1);
+            });
+
+            selectedProfileNameL.BeginAnimation(OpacityProperty, anim0);
+        }
+
+        public void editSelectedProfile()
+        {
+            string selectedProfile = settings["selectedProfile"].ToString();
+            editProfilePage.load(selectedProfile, getProfile(selectedProfile));
+
+            profilesSV.Visibility = Visibility.Hidden;
+            hidePlayBar();
+            navigatePage(editProfilePage, false, false);
+        }
+
         bool selectedProfileExistsInList = false;
         public void addProfileItem(string mainText, string subText, BitmapImage icon)
         {
@@ -448,19 +473,7 @@ namespace PixelPerfect
             item.MouseUp += new MouseButtonEventHandler((object sender, MouseButtonEventArgs e) =>
             {
                 ProfileItem i = (ProfileItem)sender;
-                settings["selectedProfile"] = i.MainText;
-                saveConfig();
-
-                DoubleAnimation anim0 = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(110));
-                anim0.Completed += new EventHandler((object sender2, EventArgs e2) =>
-                {
-                    selectedProfileNameL.Content = i.MainText + " - " + i.SubText;
-
-                    DoubleAnimation anim1 = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(110));
-                    selectedProfileNameL.BeginAnimation(OpacityProperty, anim1);
-                });
-
-                selectedProfileNameL.BeginAnimation(OpacityProperty, anim0);
+                selectProfile(i.MainText);
             });
 
             profilesSP.Children.Add(item);
@@ -623,8 +636,13 @@ namespace PixelPerfect
                 o["name"] = name;
                 o["icon"] = grassIconData;
                 o["version"] = versionManifest.latestVersion;
-                o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
                 o["custom"] = false;
+
+                if (((JObject)settings["profiles"]).ContainsKey(RELEASE_VERSION_NAME))
+                    o["javaArgs"] = (string)settings["profiles"][RELEASE_VERSION_NAME]["javaArgs"];
+                else
+                    o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
+
             }
             else if (name == SNAPSHOT_VERSION_NAME)
             {
@@ -632,8 +650,12 @@ namespace PixelPerfect
                 o["name"] = name;
                 o["icon"] = craftingTableIconData;
                 o["version"] = versionManifest.latestSnapshot;
-                o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
                 o["custom"] = false;
+
+                if (((JObject)settings["profiles"]).ContainsKey(SNAPSHOT_VERSION_NAME))
+                    o["javaArgs"] = (string)settings["profiles"][SNAPSHOT_VERSION_NAME]["javaArgs"];
+                else
+                    o["javaArgs"] = "-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M";
             }
             else
             {
@@ -673,7 +695,7 @@ namespace PixelPerfect
             return settings["profiles"][name] != null || name == RELEASE_VERSION_NAME || name == SNAPSHOT_VERSION_NAME;
         }
 
-        public async void startGame(string version, string javaArgs, string gamePath, string profilePath)
+        public async Task startGame(string version, string javaArgs, string gamePath, string profilePath)
         {
             try
             {
@@ -695,6 +717,7 @@ namespace PixelPerfect
                 {
                     string args = await Utils.CreateMinecraftStartArgs(version, javaArgs, gamePath, profilePath, (string)settings["playerName"], (string)settings["uuid"],
                         (string)settings["accessToken"], (int)settings["width"], (int)settings["height"]);
+
                     ProcessStartInfo procStartInfo = new ProcessStartInfo("javaw", args);
                     procStartInfo.WorkingDirectory = profilePath;
 

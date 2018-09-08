@@ -7,12 +7,12 @@ using System.Windows;
 // Общие сведения об этой сборке предоставляются следующим набором
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("PixelPerfect")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Pixel Perfect")]
+[assembly: AssemblyDescription("Minecraft Launcher")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("PixelPerfect")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
+[assembly: AssemblyCompany("STR")]
+[assembly: AssemblyProduct("Minecraft Launcher")]
+[assembly: AssemblyCopyright("Copyright © STR 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
