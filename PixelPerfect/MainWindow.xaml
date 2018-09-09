@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelPerfect"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="PixelPerfect.MainWindow"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp" Loaded="Window_Loaded">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp" Loaded="Window_Loaded" Closing="Window_Closing">
 
     <Grid>
         <Grid.Background>

@@ -761,6 +761,12 @@ namespace PixelPerfect
             saveConfig();
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (fileDownloader != null)
+                fileDownloader.OnClose();
+        }
+
         public bool isProfileExists(string name)
         {
             return settings["profiles"][name] != null || name == RELEASE_VERSION_NAME || name == SNAPSHOT_VERSION_NAME;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PixelPerfect
@@ -82,6 +81,12 @@ namespace PixelPerfect
 
         private void completed(object sender, AsyncCompletedEventArgs e)
         {
+            if (e.Cancelled)
+            {
+                webClient.Dispose();
+                File.Delete(files[downloadingIndex].path);
+            }
+
             if (files[downloadingIndex].pathExt != null && !File.Exists(files[downloadingIndex].pathExt))
             {
                 Directory.CreateDirectory(Directory.GetParent(files[downloadingIndex].pathExt).FullName);
@@ -103,6 +108,14 @@ namespace PixelPerfect
             string path = files[downloadingIndex].path;
             Directory.CreateDirectory(Directory.GetParent(path).FullName);
             webClient.DownloadFileAsync(new Uri(files[downloadingIndex].url), path);
+        }
+
+        public void OnClose()
+        {
+            try
+            {
+                webClient.CancelAsync();
+            } catch { }
         }
     }
 
