@@ -34,10 +34,26 @@
                     <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                 </Grid>
                 <Grid x:Name="basePlayInfoGrid">
-                    <Label x:Name="versionL0" Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                    <Label x:Name="versionL0" Content="Pixel Perfect 0.0.0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,10,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
-                    <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/pixelperfect_logo.png" Margin="0,0,10,10" Height="19"/>
+                    <Label Content="PIXEL PERFECT" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Century Gothic" FontWeight="Bold" FontSize="24" Style="{DynamicResource CustomLabel}" Margin="0,0,9,6">
+                        <Label.Foreground>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <LinearGradientBrush.RelativeTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                                        <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                                        <RotateTransform Angle="45" CenterY="0.5" CenterX="0.5"/>
+                                        <TranslateTransform/>
+                                    </TransformGroup>
+                                </LinearGradientBrush.RelativeTransform>
+                                <GradientStop Color="#FFFF9700" Offset="1"/>
+                                <GradientStop Color="#FF5B67E6"/>
+                                <GradientStop Color="#FF0AA82E" Offset="0.5"/>
+                            </LinearGradientBrush>
+                        </Label.Foreground>
+                    </Label>
                 </Grid>
             </Grid>
             <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
