@@ -15,7 +15,7 @@
                 <TextBox x:Name="pathTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" Text="Path" HorizontalAlignment="Center" Width="400" Margin="0,0,12,0" Height="34" IsReadOnly="True"/>
                 <Button x:Name="selectFolderB" Content="" Style="{DynamicResource FolderButton}" Margin="0" Width="22" Height="22" Click="selectFolderB_Click">
                     <Button.Background>
-                        <ImageBrush ImageSource="/PixelPerfect;component/Images/folder.png" Stretch="Uniform"/>
+                        <ImageBrush ImageSource="/Pixel Perfect;component/Images/folder.png" Stretch="Uniform"/>
                     </Button.Background>
                 </Button>
             </StackPanel>

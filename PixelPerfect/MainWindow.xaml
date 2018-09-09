@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelPerfect"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="PixelPerfect.MainWindow"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp" Loaded="Window_Loaded">
 
     <Grid>
         <Grid.Background>
@@ -29,12 +29,12 @@
             <ScrollViewer x:Name="frameSV" Margin="0,120,0,80" AutomationProperties.IsOffscreenBehavior="Onscreen" Template="{DynamicResource ModernScrollViewer}"/>
             <Grid x:Name="bottomG" Height="80" VerticalAlignment="Bottom" Background="Black">
                 <Grid x:Name="downloadInfoGrid" Opacity="0">
-                    <ProgressBar x:Name="downloadPB" Height="30" Margin="12,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White"/>
+                    <ProgressBar x:Name="downloadPB" Height="30" Margin="11,18,12,0" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White" BorderBrush="White"/>
                     <Label x:Name="downloadInfoL" Content="Подготовка ..." HorizontalAlignment="Left" Height="17" Margin="12,0,0,14" VerticalAlignment="Bottom" Width="370" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                     <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                 </Grid>
                 <Grid x:Name="basePlayInfoGrid">
-                    <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                    <Label x:Name="versionL0" Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
                     <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/pixelperfect_logo.png" Margin="0,0,10,10" Height="19"/>
@@ -77,7 +77,28 @@
             </Grid>
             <Grid  Height="41" VerticalAlignment="Bottom" Background="Black">
                 <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
-                <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                <Label x:Name="versionL1" Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+            </Grid>
+        </Grid>
+        <Grid x:Name="loadingG" Visibility="Hidden">
+            <Grid.Background>
+                <ImageBrush ImageSource="Images/block_marble.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,256,256"/>
+            </Grid.Background>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True">
+                <Label Content="Распаковка JRE" Style="{DynamicResource CustomLabel}" HorizontalAlignment="Center" Margin="0,0,0,33" FontSize="16"/>
+                <ProgressBar x:Name="downloadPB_Copy" VerticalAlignment="Top" Value="29" Foreground="#FF77C356" Background="White" Width="500" Height="30" IsIndeterminate="True"/>
+            </StackPanel>
+            <Grid Height="70" VerticalAlignment="Top">
+                <Grid.Background>
+                    <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
+                </Grid.Background>
+                <Image HorizontalAlignment="Center" VerticalAlignment="Top" Source="Images/minecraft_logo.png" Height="50" Margin="0,10,0,0" SnapsToDevicePixels="True" Cursor="Hand" MouseUp="minecraftImage_MouseUp"/>
+                <Image HorizontalAlignment="Left" VerticalAlignment="Top" Source="Images/crap.png" Height="25" SnapsToDevicePixels="True" Margin="22,22,0,0" Width="25"/>
+            </Grid>
+            <Grid  Height="41" VerticalAlignment="Bottom" Background="Black">
+                <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
+                <Label x:Name="versionL2" Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                 <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
             </Grid>
         </Grid>

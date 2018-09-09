@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,17 @@ namespace PixelPerfect
     class Utils
     {
         public static byte[] hexBytes = { (byte)'a', (byte)'b', (byte)'c', (byte)'d', (byte)'e', (byte)'f' };
+
+        public static void WriteResourceToFile(string resourceName, string fileName)
+        {
+            using (var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                using (var file = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                {
+                    resource.CopyTo(file);
+                }
+            }
+        }
 
         public static string GetResourcePath(string path)
         {

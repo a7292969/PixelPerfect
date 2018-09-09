@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Ionic.Zip;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixelPerfect.Pages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,7 +29,7 @@ namespace PixelPerfect
         private EditProfilePage editProfilePage;
 
         private JObject settings;
-        private string ppPath, configPath;
+        private string ppPath, jrePath, configPath;
 
         private VersionManifest versionManifest;
         private FileDownloader fileDownloader;
@@ -51,7 +53,7 @@ namespace PixelPerfect
             StreamWriter writer;
             TextWriter oldOut = Console.Out;
 
-            string logPath = ppPath + "PixelPerfectLog.txt";
+            string logPath = ppPath + "launcher_log.txt";
 
             try
             {
@@ -64,7 +66,6 @@ namespace PixelPerfect
             }
             catch { Console.WriteLine("SHIT!"); }
 #endif
-
 
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
@@ -124,10 +125,51 @@ namespace PixelPerfect
                 loadLogin();
         }
 
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            string assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            assemblyVersion = assemblyVersion.Substring(0, assemblyVersion.Length - 2);
+
+            string version = "Pixel Perfect " + assemblyVersion;
+            versionL0.Content = versionL1.Content = versionL2.Content = version;
+
+            jrePath = ppPath + "JRE";
+            if (!Directory.Exists(jrePath))
+            {
+                loadingG.Visibility = Visibility.Visible;
+                await unpackJRE(jrePath);
+                loadingG.Visibility = Visibility.Hidden;
+                loadSelectedPage();
+            }
+        }
+
+        public Task unpackJRE(string jrePath)
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    string jreZipPath = ppPath + "JRE.zip";
+
+                    if (!File.Exists(jreZipPath))
+                        File.WriteAllBytes(jreZipPath, Properties.Resources.JRE);
+
+                    using (ZipFile zip = ZipFile.Read(jreZipPath))
+                        foreach (ZipEntry e in zip)
+                            e.Extract(jrePath, ExtractExistingFileAction.OverwriteSilently);
+
+                    if (File.Exists(jreZipPath))
+                        File.Delete(jreZipPath);
+                } catch { }
+            });
+        }
+
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            if (!isPlaying && loginG.Visibility == Visibility.Hidden)
+            if (!isPlaying && loginG.Visibility == Visibility.Hidden && loadingG.Visibility == Visibility.Hidden)
+            {
                 loadSelectedPage();
+            }
         }
 
         private void minecraftImage_MouseUp(object sender, MouseButtonEventArgs e)
@@ -205,7 +247,7 @@ namespace PixelPerfect
 
         private async void loginB_Click(object sender, RoutedEventArgs e)
         {
-            await loadLogin();
+            loadLogin();
 
             string username = emailTB.Text;
             string password = passwordTB.Password;
@@ -404,7 +446,7 @@ namespace PixelPerfect
                 frameSV.Content = frame;
         }
 
-        public async Task loadLogin()
+        public async void loadLogin()
         {
             loginG.Visibility = Visibility.Visible;
 
@@ -749,7 +791,7 @@ namespace PixelPerfect
                     string args = await Utils.CreateMinecraftStartArgs(version, javaArgs, gamePath, profilePath, (string)settings["playerName"], (string)settings["uuid"],
                         (string)settings["accessToken"], (int)settings["width"], (int)settings["height"]);
 
-                    ProcessStartInfo procStartInfo = new ProcessStartInfo("javaw", args);
+                    ProcessStartInfo procStartInfo = new ProcessStartInfo(jrePath + "\\bin\\javaw.exe", args);
                     procStartInfo.WorkingDirectory = profilePath;
 
                     Process proc = new Process();

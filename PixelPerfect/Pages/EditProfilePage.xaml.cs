@@ -67,6 +67,7 @@ namespace PixelPerfect.Pages
         private void nameTB_TextChanged(object sender, TextChangedEventArgs e)
         {
             existsAttentionL.Visibility = Visibility.Collapsed;
+            saveB.IsEnabled = !string.IsNullOrWhiteSpace(nameTB.Text);
         }
 
         private void deleteL_MouseUp(object sender, MouseButtonEventArgs e)
@@ -242,6 +243,7 @@ namespace PixelPerfect.Pages
             bool isProfileDefault = !(name == MainWindow.RELEASE_VERSION_NAME || name == MainWindow.SNAPSHOT_VERSION_NAME);
             selectIconB.IsEnabled = nameTB.IsEnabled = versionsCB.IsEnabled = customCB.IsEnabled = deleteL.IsEnabled = isProfileDefault;
 
+            saveB.IsEnabled = !string.IsNullOrWhiteSpace(nameTB.Text);
             mainControlsSP.IsEnabled = true;
             iconSelecionG.Visibility = Visibility.Collapsed;
             deleteDialogG.Visibility = Visibility.Collapsed;

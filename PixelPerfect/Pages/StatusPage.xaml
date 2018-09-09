@@ -12,32 +12,32 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center">
 
-                <Image x:Name="minecraftIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="minecraftIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Minecraft.net" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="minecraftText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
-                <Image x:Name="accountsIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="accountsIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Mojang accounts website" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="accountsText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
-                <Image x:Name="authIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="authIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Authentication service" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="authText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
-                <Image x:Name="multiplayerIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="multiplayerIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Multiplayer session service" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="multiplayerText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
-                <Image x:Name="texturesIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="texturesIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Minecraft textures" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="texturesText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
             <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,25,0,0">
-                <Image x:Name="apiIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/PixelPerfect;component/Images/status_message.png" Height="40" Width="40"/>
+                <Image x:Name="apiIcon" HorizontalAlignment="Left" VerticalAlignment="Top" Source="/Pixel Perfect;component/Images/status_message.png" Height="40" Width="40"/>
                 <Label Content="Public API" HorizontalAlignment="Left" Margin="52,-3,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontFamily="Source Sans Pro Semibold" FontSize="20"/>
                 <Label x:Name="apiText" Content="..." HorizontalAlignment="Left" Margin="53,21,0,0" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="16" FontFamily="Source Sans Pro"/>
             </Grid>
