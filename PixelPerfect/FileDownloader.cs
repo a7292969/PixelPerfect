@@ -40,6 +40,9 @@ namespace PixelPerfect
             downloadedSize = 0;
             downloadingIndex = 0;
 
+            if (allFiles == null)
+                return;
+
             await Task.Run(() => {
                 totalSize = 0;
                 files.Clear();
@@ -64,7 +67,7 @@ namespace PixelPerfect
                     Console.WriteLine(files[downloadingIndex].name + " " + files[downloadingIndex].size + " " + e.TotalBytesToReceive + " " + totalSize);
 
                 prevDownloadedSize = 0;
-                //totalSize -= files[downloadingIndex].size - e.TotalBytesToReceive;
+                totalSize += e.TotalBytesToReceive - files[downloadingIndex].size;
             }
 
             downloadedSize += e.BytesReceived - prevDownloadedSize;

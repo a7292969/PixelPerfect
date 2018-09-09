@@ -44,6 +44,28 @@ namespace PixelPerfect
         {
             InitializeComponent();
 
+            ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
+
+#if (!DEBUG)
+            FileStream ostrm;
+            StreamWriter writer;
+            TextWriter oldOut = Console.Out;
+
+            string logPath = ppPath + "PixelPerfectLog.txt";
+
+            try
+            {
+                if (File.Exists(logPath))
+                    File.Delete(logPath);
+
+                ostrm = new FileStream(logPath, FileMode.OpenOrCreate, FileAccess.Write);
+                writer = new StreamWriter(ostrm);
+                Console.SetOut(writer);
+            }
+            catch { Console.WriteLine("SHIT!"); }
+#endif
+
+
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
             statusPage = new StatusPage();
@@ -61,23 +83,25 @@ namespace PixelPerfect
             grassIconData = Convert.ToBase64String(Utils.ImageToBytes(grassIcon));
             craftingTableIconData = Convert.ToBase64String(Utils.ImageToBytes(craftingTableIcon));
 
-            ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
             configPath = ppPath + "\\config.json";
             Directory.CreateDirectory(ppPath);
 
             loadConfig();
 
             versionManifest = Utils.GetMCVersions();
-
             if (versionManifest == null)
             {
-                versionManifest = new VersionManifest(new Dictionary<string, MCVersion>(), "", "");
+                versionManifest = new VersionManifest(new Dictionary<string, MCVersion>(), (string)settings["latestVersion"], (string)settings["latestSnapshot"]);
             }
             else
             {
-                addProfilePage.loadVersionManifest(versionManifest);
-                updateGamePath();
-            } 
+                settings["latestVersion"] = versionManifest.latestVersion;
+                settings["latestSnapshot"] = versionManifest.latestSnapshot;
+                saveConfig();
+            }
+
+            addProfilePage.loadVersionManifest(versionManifest);
+            updateGamePath();
 
             updateProfileItems();
 
@@ -123,7 +147,7 @@ namespace PixelPerfect
             editSelectedProfile();
         }
 
-        private void playB_Click(object sender, RoutedEventArgs e)
+        private async void playB_Click(object sender, RoutedEventArgs e)
         {
             profilesSV.Visibility = Visibility.Hidden;
             playButtonsSP.Visibility = Visibility.Hidden;
@@ -145,7 +169,7 @@ namespace PixelPerfect
             string gamePath = (string)settings["gamePath"];
             string profilePath = (bool)selectedProfile["custom"] ? gamePath + "\\" + name : gamePath;
 
-            startGame(version, javaArgs, gamePath, profilePath);
+            await startGame(version, javaArgs, gamePath, profilePath);
         }
 
         private void profilesB_Click(object sender, RoutedEventArgs e)
@@ -264,7 +288,7 @@ namespace PixelPerfect
             Thickness start = frameSV.Margin;
             start.Bottom = bottomG.Height;
             Thickness end = frameSV.Margin;
-            end.Bottom = 80;
+            end.Bottom = h;
 
             ThicknessAnimation mAnim = new ThicknessAnimation(start, end, TimeSpan.FromMilliseconds(200));
             mAnim.EasingFunction = easingFunction;
@@ -292,11 +316,16 @@ namespace PixelPerfect
                 playButtonsSP.Visibility = Visibility.Hidden;
             });
 
-            Thickness margin = frameSV.Margin;
-            margin.Bottom = h;
-            frameSV.Margin = margin;
+            Thickness start = frameSV.Margin;
+            start.Bottom = bottomG.Height;
+            Thickness end = frameSV.Margin;
+            end.Bottom = h;
+
+            ThicknessAnimation mAnim = new ThicknessAnimation(start, end, TimeSpan.FromMilliseconds(0));
+            mAnim.EasingFunction = easingFunction;
 
             playButtonsSP.BeginAnimation(OpacityProperty, anim);
+            frameSV.BeginAnimation(MarginProperty, mAnim);
         }
 
         private void updateMainToggleButtons(MinecraftToggleButton checkedButton)
@@ -454,8 +483,8 @@ namespace PixelPerfect
             editProfilePage.load(selectedProfile, getProfile(selectedProfile));
 
             profilesSV.Visibility = Visibility.Hidden;
-            hidePlayBar();
             navigatePage(editProfilePage, false, false);
+            hidePlayBar();
         }
 
         bool selectedProfileExistsInList = false;
@@ -702,6 +731,8 @@ namespace PixelPerfect
                 isPlaying = true;
 
                 List<FileToDownload> files = await Utils.GetFilesForDownload(version, (string)settings["gamePath"], versionManifest);
+                if (files == null)
+                    prepareGameClose();
 
                 fileDownloader = new FileDownloader(files, this);
                 fileDownloader.OnProgressChanged += new FileDownloader.OnProgressChangedEventHandler((object sender, ProgressChangedEventArgs e) =>

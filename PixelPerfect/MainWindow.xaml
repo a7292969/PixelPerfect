@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelPerfect"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="PixelPerfect.MainWindow"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="1280" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp">
 
     <Grid>
         <Grid.Background>
@@ -34,10 +34,10 @@
                     <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                 </Grid>
                 <Grid x:Name="basePlayInfoGrid">
-                    <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
-                    <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/mojang_logo.png" Height="21" Margin="0,0,10,10"/>
                     <Label Content="Pixel Perfect 0.0.1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                    <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
+                    <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Source="Images/pixelperfect_logo.png" Margin="0,0,10,10" Height="19"/>
                 </Grid>
             </Grid>
             <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
