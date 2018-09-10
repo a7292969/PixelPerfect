@@ -408,8 +408,8 @@ namespace PixelPerfect
         {
             return await Task.Run(() =>
             {
-                try
-                {
+                //try
+                //{
                     string assetsPath = gamePath + "\\assets\\";
                     string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
                     string librariesPath = gamePath + "\\libraries\\";
@@ -457,7 +457,7 @@ namespace PixelPerfect
                         assetIndexData = File.ReadAllText(assetIndexPath);
                     else
                     {
-                        assetIndexData = Connector.Get((string)verData["assetIndex"]["url"]);
+                        assetIndexData = Connector.Get((string)originalVerData["assetIndex"]["url"]);
                         File.AppendAllText(assetIndexPath, assetIndexData);
                     }
 
@@ -486,48 +486,6 @@ namespace PixelPerfect
 
                     // Libraries
                     files.AddRange(ParseInheritsDownloads(verData, gamePath));
-                    //JArray libraries = (JArray)verData["libraries"];
-                    //foreach (JObject o in libraries)
-                    //{
-                    //    if (o.ContainsKey("rules"))
-                    //    {
-                    //        JArray rules = (JArray)o["rules"];
-                    //        JObject rule0 = (JObject)rules[0];
-
-                    //        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
-                    //            continue;
-                    //    }
-
-                    //    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
-                    //    {
-                    //        string path = librariesPath + (string)o["downloads"]["artifact"]["path"];
-                    //        string name = Path.GetFileName(path);
-                    //        string url = (string)o["downloads"]["artifact"]["url"];
-                    //        string sha1 = (string)o["downloads"]["artifact"]["sha1"];
-                    //        long size = (long)o["downloads"]["artifact"]["size"];
-
-                    //        FileToDownload file = new FileToDownload(name, path, url, sha1, size);
-                    //        if (!files.Contains(file))
-                    //            files.Add(file);
-                    //    }
-
-                    //    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
-                    //    {
-                    //        string keyname = "natives-windows";
-
-                    //        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
-                    //            keyname = "natives-windows-64";
-
-                    //        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
-                    //        string name = Path.GetFileName(path);
-                    //        string url = (string)o["downloads"]["classifiers"][keyname]["url"];
-                    //        string sha1 = (string)o["downloads"]["classifiers"][keyname]["sha1"];
-                    //        long size = (long)o["downloads"]["classifiers"][keyname]["size"];
-
-                    //        files.Add(new FileToDownload(name, path, url, sha1, size));
-
-                    //    }
-                    //}
 
                     // Assets
                     JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
@@ -543,7 +501,7 @@ namespace PixelPerfect
 
                         FileToDownload file;
 
-                        if ((string)verData["assets"] == "legacy")
+                        if ((string)originalVerData["assets"] == "legacy")
                             file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
                         else
                             file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
@@ -553,7 +511,7 @@ namespace PixelPerfect
                     }
 
                     return files;
-                } catch { return null; }
+                //} catch { return null; }
             });
         }
 
@@ -585,45 +543,6 @@ namespace PixelPerfect
                 JObject verData = JObject.Parse(versionJsonData);
 
                 VersionStartData versionStartData = ParseInherits(verData, gamePath);
-
-                // Libraries
-                //JArray libraries = (JArray)verData["libraries"];
-                //foreach (JObject o in libraries)
-                //{
-                //    if (o.ContainsKey("rules"))
-                //    {
-                //        JArray rules = (JArray)o["rules"];
-                //        JObject rule0 = (JObject)rules[0];
-
-                //        if (rule0.ContainsKey("action") && rule0.ContainsKey("os") && (string)rule0["action"] == "allow" && (string)rule0["os"]["name"] == "osx")
-                //            continue;
-                //    }
-
-                //    if (o.ContainsKey("downloads") && ((JObject)o["downloads"]).ContainsKey("artifact"))
-                //    {
-                //        string path = ((string)o["name"]).Replace(":", "\\");
-                //        string jarVersion = Path.GetFileName(path);
-                //        string jarName = Directory.GetParent(path).Name;
-
-                //        path = librariesPath + path.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
-
-                //        if (!librariesPaths.Contains(path))
-                //            librariesPaths.Add(path);
-                //    }
-
-                //    if (o.ContainsKey("natives") && ((JObject)o["natives"]).ContainsKey("windows"))
-                //    {
-                //        string keyname = "natives-windows";
-
-                //        if (!((JObject)o["downloads"]["classifiers"]).ContainsKey(keyname))
-                //            keyname = "natives-windows-64";
-
-                //        string path = librariesPath + (string)o["downloads"]["classifiers"][keyname]["path"];
-
-                //        if (!nativeJarsPaths.Contains(path))
-                //            nativeJarsPaths.Add(path);
-                //    }
-                //}
 
                 // Natives
                 foreach (string path in versionStartData.nativeJarsPaths)
