@@ -23,6 +23,7 @@
 
     <Grid MaxWidth="800">
         <StackPanel x:Name="mainControlsSP" MaxWidth="558" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Source="/Pixel Perfect;component/Images/forge_logo.png" Width="200"/>
             <Label Content="Установить Minecraft Forge" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>
             <Label Content="Версия Minecraft" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,33,0,0"/>
             <ComboBox x:Name="versionsCB" Margin="0,5,0,0" FontSize="14" VerticalAlignment="Center" Height="34" SelectedIndex="0" Style="{DynamicResource MCComboBox}" MaxDropDownHeight="455" Width="558" ItemsSource="{Binding Source={StaticResource versionsSource}}" SelectionChanged="versionsCB_SelectionChanged"/>

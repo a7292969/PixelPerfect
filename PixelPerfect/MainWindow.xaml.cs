@@ -48,6 +48,7 @@ namespace PixelPerfect
         {
             InitializeComponent();
 
+            Utils.installForge("1.6.4", "forge-9.11.0.905", "");
             ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
 
 #if (!DEBUG)

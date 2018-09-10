@@ -303,5 +303,8 @@
   <ItemGroup>
     <Resource Include="Images\icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\forge_logo.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

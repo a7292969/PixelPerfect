@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -650,6 +651,47 @@ namespace PixelPerfect
 
                 Console.WriteLine(args);
                 return args;
+            });
+        }
+
+        public static async Task installForge(string mcVersion, string forgeVersion, string gamePath)
+        {
+            await Task.Run(() =>
+            {
+                string filename = forgeVersion.Replace("-", "-" + mcVersion + "-") + "-installer.jar";
+
+                string url = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + mcVersion + "-" + forgeVersion.Remove(0, 6) + "/" + filename;
+                string jarDownloadPath = Path.GetTempPath() + "\\PixelPerfectForge\\" + filename;
+                Directory.CreateDirectory(Directory.GetParent(jarDownloadPath).FullName);
+
+
+                WebClient webClient = new WebClient();
+                byte[] bytes = webClient.DownloadData(url);
+
+                if (File.Exists(jarDownloadPath))
+                    File.Delete(jarDownloadPath);
+                File.WriteAllBytes(jarDownloadPath, bytes);
+
+
+                string profileFilename = "install_profile.json";
+                string profilePath = Path.GetTempPath() + "\\PixelPerfectForge\\" + profileFilename;
+
+                ZipFile jar = new ZipFile(jarDownloadPath);
+                foreach (ZipEntry e in jar)
+                {
+                    if (e.FileName == profileFilename)
+                        e.Extract(Directory.GetParent(profilePath).FullName, ExtractExistingFileAction.OverwriteSilently);
+                }
+
+
+
+
+                // TODO THIS
+
+
+
+
+                File.Delete(jarDownloadPath);
             });
         }
     }
