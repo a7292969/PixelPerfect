@@ -125,6 +125,34 @@ namespace PixelPerfect
             return (string)o["id"];
         }
 
+        public static Dictionary<string, ForgeVersion> GetForgeVersions()
+        {
+            string responce = Connector.GetAuth("https://addons-ecs.forgesvc.net/api/minecraft/modloader", "Xe76UdjPhHDDs9lSzpnaHFllUvgBjvH/dJO6G4tcnJw94CjXC3CO8psTdMJvnLBzDF0PcDOvghW74LHoNJy0DyBhuRX6mf60oyKFrc9YtSla1ld1BmDJzsjW+7i5IIhwVgS3R2YCmy0obNpz2EbcD9/srnt6tzuR0ATXjycDGd8=");
+
+            if (responce == "-1")
+                return null;
+
+            JArray json = JArray.Parse(responce);
+            Dictionary<string, ForgeVersion> versions = new Dictionary<string, ForgeVersion>();
+            
+            foreach (JObject o in json)
+            {
+                string name = (string)o["name"];
+                string gameVersion = (string)o["gameVersion"];
+                bool latest = (bool)o["latest"];
+
+                if (!versions.ContainsKey(gameVersion))
+                    versions[gameVersion] = new ForgeVersion();
+
+                if (latest)
+                    versions[gameVersion].latest = name;
+
+                versions[gameVersion].versions.Add(name);
+            }
+            
+            return versions;
+        }
+
         public static async Task<string> GetAccessData(string clientToken, string username, string password)
         {
             JObject payload = new JObject();

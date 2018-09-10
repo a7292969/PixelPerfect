@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PixelPerfect"
         xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="PixelPerfect.MainWindow"
         mc:Ignorable="d"
-        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="Pixel Perfect Minecraft Launcher" Height="720" Width="854" WindowStartupLocation="CenterScreen" ContentRendered="Window_ContentRendered" Icon="Images/icon.ico" MouseUp="Window_MouseUp" Loaded="Window_Loaded" Closing="Window_Closing" MinWidth="854" MinHeight="720">
 
     <Grid>
         <Grid.Background>
@@ -18,8 +18,9 @@
                     <ImageBrush ImageSource="Images/block_granite.png" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,300,300"/>
                 </Grid.Background>
                 <StackPanel x:Name="topButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,71,0,0">
-                    <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Главная" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
+                    <local:MinecraftToggleButton x:Name="generalTB" Height="36" MainText="Новости" MouseUp="generalTB_Clicked" CheckOpacity="1"/>
                     <local:MinecraftToggleButton x:Name="settingsTB" Height="36" Margin="20,0,0,0" MainText="Настройки" MouseUp="settingsTB_Clicked"/>
+                    <local:MinecraftToggleButton x:Name="modsTB" Height="36" Margin="20,0,0,0" MainText="Forge" MouseUp="modsTB_Clicked"/>
                     <local:MinecraftToggleButton x:Name="statusTB" Height="36" Margin="20,0,0,0" MainText="Статус" MouseUp="statusTB_Clicked"/>
                 </StackPanel>
             </Grid>
@@ -34,16 +35,16 @@
                     <Label x:Name="downloadLeftL" Content="" HorizontalAlignment="Right" Margin="0,0,12,14" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FFDDDDDD" FontSize="13"/>
                 </Grid>
                 <Grid x:Name="basePlayInfoGrid">
-                    <Label x:Name="versionL0" Content="Pixel Perfect 0.0.0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,10,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
+                    <Label x:Name="versionL0" Content="Pixel Perfect 0.0.0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,19" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label Content="Разработано совместно c Mojang" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,8" Style="{DynamicResource CustomLabel}" Background="{x:Null}" Foreground="#FF787878" FontSize="11"/>
                     <Label x:Name="selectedProfileNameL" Content="..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{DynamicResource CustomLabel}" Foreground="#FF77C356" FontFamily="Segoe UI Semibold" Margin="0,0,0,9"/>
                     <Label Content="PIXEL PERFECT" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Century Gothic" FontWeight="Bold" FontSize="24" Style="{DynamicResource CustomLabel}" Margin="0,0,9,6">
                         <Label.Foreground>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <LinearGradientBrush EndPoint="79.432,29.427" StartPoint="79.432,0" MappingMode="Absolute">
                                 <LinearGradientBrush.RelativeTransform>
                                     <TransformGroup>
                                         <ScaleTransform CenterY="0.5" CenterX="0.5"/>
-                                        <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                                        <SkewTransform CenterY="0.5" CenterX="0.5" AngleX="-44"/>
                                         <RotateTransform Angle="45" CenterY="0.5" CenterX="0.5"/>
                                         <TranslateTransform/>
                                     </TransformGroup>

@@ -24,6 +24,7 @@ namespace PixelPerfect
     {
         private GeneralPage generalPage;
         private SettingsPage settingsPage;
+        private ForgePage forgePage;
         private StatusPage statusPage;
         private AddProfilePage addProfilePage;
         private EditProfilePage editProfilePage;
@@ -32,6 +33,7 @@ namespace PixelPerfect
         private string ppPath, jrePath, configPath;
 
         private VersionManifest versionManifest;
+        private Dictionary<string, ForgeVersion> forgeManifest;
         private FileDownloader fileDownloader;
 
         private BitmapImage grassIcon, craftingTableIcon;
@@ -69,6 +71,7 @@ namespace PixelPerfect
 
             generalPage = new GeneralPage();
             settingsPage = new SettingsPage();
+            forgePage = new ForgePage();
             statusPage = new StatusPage();
             addProfilePage = new AddProfilePage();
             editProfilePage = new EditProfilePage();
@@ -91,9 +94,7 @@ namespace PixelPerfect
 
             versionManifest = Utils.GetMCVersions();
             if (versionManifest == null)
-            {
                 versionManifest = new VersionManifest(new Dictionary<string, MCVersion>(), (string)settings["latestVersion"], (string)settings["latestSnapshot"]);
-            }
             else
             {
                 settings["latestVersion"] = versionManifest.latestVersion;
@@ -101,9 +102,14 @@ namespace PixelPerfect
                 saveConfig();
             }
 
-            addProfilePage.loadVersionManifest(versionManifest);
-            updateGamePath();
+            forgeManifest = Utils.GetForgeVersions();
+            if (forgeManifest == null)
+                forgeManifest = new Dictionary<string, ForgeVersion>();
 
+            addProfilePage.loadVersionManifest(versionManifest);
+            forgePage.loadData((string)settings["gamePath"], forgeManifest);
+
+            updateGamePath();
             updateProfileItems();
 
             string responce = Utils.ValidateAccessData((string)settings["accessToken"], (string)settings["clientToken"]);
@@ -141,6 +147,12 @@ namespace PixelPerfect
                 loadingG.Visibility = Visibility.Hidden;
                 loadSelectedPage();
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (fileDownloader != null)
+                fileDownloader.OnClose();
         }
 
         public Task unpackJRE(string jrePath)
@@ -237,6 +249,12 @@ namespace PixelPerfect
         {
             updateMainToggleButtons(settingsTB);
             loadSettingsPage();
+        }
+
+        private void modsTB_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            updateMainToggleButtons(modsTB);
+            loadModsPage();
         }
 
         private void statusTB_Clicked(object sender, MouseButtonEventArgs e)
@@ -375,10 +393,12 @@ namespace PixelPerfect
             DoubleAnimation anim0 = new DoubleAnimation(generalTB.CheckOpacity, generalTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
             DoubleAnimation anim1 = new DoubleAnimation(settingsTB.CheckOpacity, settingsTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
             DoubleAnimation anim2 = new DoubleAnimation(statusTB.CheckOpacity, statusTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
+            DoubleAnimation anim3 = new DoubleAnimation(modsTB.CheckOpacity, modsTB.Equals(checkedButton) ? 1 : 0, TimeSpan.FromMilliseconds(220));
 
             generalTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim0);
             settingsTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim1);
             statusTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim2);
+            modsTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim3);
         }
 
         public void loadGeneralPage()
@@ -392,6 +412,12 @@ namespace PixelPerfect
         {
             settingsPage.loadSettings(settings);
             navigatePage(settingsPage, false, false);
+            showPlayBar();
+        }
+
+        public void loadModsPage()
+        {
+            navigatePage(forgePage, false, false);
             showPlayBar();
         }
 
@@ -410,6 +436,8 @@ namespace PixelPerfect
                 loadSettingsPage();
             else if (statusTB.CheckOpacity == 1)
                 loadStatusPage();
+            else if (modsTB.CheckOpacity == 1)
+                loadModsPage();
 
             showPlayBar();
         }
@@ -759,12 +787,6 @@ namespace PixelPerfect
                 settings["selectedProfile"] = RELEASE_VERSION_NAME;
 
             saveConfig();
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (fileDownloader != null)
-                fileDownloader.OnClose();
         }
 
         public bool isProfileExists(string name)

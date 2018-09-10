@@ -90,7 +90,11 @@
     </ApplicationDefinition>
     <Compile Include="FileDownloader.cs" />
     <Compile Include="FileToDownload.cs" />
+    <Compile Include="ForgeVersion.cs" />
     <Compile Include="MCVersion.cs" />
+    <Compile Include="Pages\ForgePage.xaml.cs">
+      <DependentUpon>ForgePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils.cs" />
     <Compile Include="VersionManifest.cs" />
     <Compile Include="VersionStartData.cs" />
@@ -124,6 +128,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\GeneralPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ForgePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

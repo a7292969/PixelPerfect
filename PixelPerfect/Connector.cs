@@ -39,6 +39,38 @@ namespace PixelPerfect
             }
         }
 
+        public static string GetAuth(string url, string token)
+        {
+            try
+            {
+                if (!InternetAvailability.IsInternetAvailable())
+                    return "-1";
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.PreAuthenticate = true;
+                request.Headers.Add("AuthenticationToken", token);
+                request.Accept = "application/json";
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        using (StreamReader reader = new StreamReader(stream))
+                            return reader.ReadToEnd();
+                    }
+                    else
+                    {
+                        return "-1";
+                    }
+                }
+            }
+            catch
+            {
+                return "-1";
+            }
+        }
+
         public static async Task<string> GetAsync(string url)
         {
             try

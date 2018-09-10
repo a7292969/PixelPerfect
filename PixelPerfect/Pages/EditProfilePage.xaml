@@ -9,14 +9,14 @@
       Title="EditProfilePage">
 
     <Grid MaxWidth="800">
-        <StackPanel x:Name="mainControlsSP" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="558" Margin="121,37,121,31">
+        <StackPanel x:Name="mainControlsSP" MaxWidth="558" Margin="121,37,121,31">
             <Label x:Name="existsAttentionL" Content="Конфигурация с таким названием уже существует." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label x:Name="imageAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label Content="Редактировать конфиругацию" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>
             <Label x:Name="deleteL" Content="Удалить [X]" Style="{DynamicResource GreenHyperLabel}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,33" FontSize="14" MouseUp="deleteL_MouseUp"/>
             <Label Content="Название" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444"/>
-            <Grid Margin="0,-2,0,0">
-                <TextBox x:Name="nameTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" TextChanged="nameTB_TextChanged" Height="34" Margin="0,7,55,7"/>
+            <Grid Margin="0,-2,0,0" UseLayoutRounding="True" SnapsToDevicePixels="True">
+                <TextBox x:Name="nameTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" TextChanged="nameTB_TextChanged" Height="34" Margin="0,7,55,7" Width="503" UseLayoutRounding="True"/>
                 <Button x:Name="selectIconB" Content="" Style="{DynamicResource SelectIconButton}" Click="selectIconB_Click" HorizontalAlignment="Right" Width="48" Height="48">
                     <Button.Background>
                         <ImageBrush ImageSource="/Pixel Perfect;component/Images/Blocks/Furnace.png" TileMode="Tile"/>
@@ -24,9 +24,9 @@
                 </Button>
             </Grid>
             <Label Content="Версия" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,4,0,0"/>
-            <ComboBox x:Name="versionsCB" Margin="0,5,0,0" FontSize="14" VerticalAlignment="Center" Height="34" SelectedIndex="0" Style="{DynamicResource MCComboBox}" MaxDropDownHeight="455"/>
+            <ComboBox x:Name="versionsCB" Margin="0,5,0,0" FontSize="14" VerticalAlignment="Center" Height="34" SelectedIndex="0" Style="{DynamicResource MCComboBox}" MaxDropDownHeight="455" Width="558"/>
             <Label Content="Параметры Java" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444" Margin="0,10,0,0"/>
-            <TextBox x:Name="javaParamsTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0,5,0,0" Text="-Xmx1G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M" Height="34"/>
+            <TextBox x:Name="javaParamsTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" Margin="0,5,0,0" Height="34" Width="558"/>
             <CheckBox x:Name="customCB" Content="Отдельная папка" HorizontalAlignment="Left" Margin="0,15,0,0" FontSize="16" Style="{DynamicResource MCCheckBox}" Foreground="#FF444444"/>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,20,0,0">
                 <Button x:Name="saveB" Content="СОХРАНИТЬ" FontSize="14" Style="{DynamicResource MCButton}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Height="37" Width="160" FontFamily="Century Gothic" FontWeight="Bold" Click="saveB_Click"/>
