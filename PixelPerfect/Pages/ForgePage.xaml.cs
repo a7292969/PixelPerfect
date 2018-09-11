@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixelPerfect.Pages
 {
@@ -23,6 +13,8 @@ namespace PixelPerfect.Pages
     /// </summary>
     public partial class ForgePage : Page
     {
+        MainWindow mw = Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+
         private string gamePath, versionsPath;
         private Dictionary<string, ForgeVersion> versions;
 
@@ -34,41 +26,56 @@ namespace PixelPerfect.Pages
             InitializeComponent();
         }
 
-        private void installB_Click(object sender, RoutedEventArgs e)
+        private async void installB_Click(object sender, RoutedEventArgs e)
         {
-            versionsCB.IsEnabled = false;
-            forgeVersionsCB.IsEnabled = false;
-            installB.IsEnabled = false;
+            versionsCB.IsEnabled = forgeVersionsCB.IsEnabled = installB.IsEnabled = false;
 
-            installingAttentionL.Content = "Идёт установка " + forgeVersionsCB.SelectedItem.ToString() + ".";
+            string selectedVersion = versionsCB.SelectedItem.ToString();
+            string selectedForgeVersion = forgeVersionsCB.SelectedItem.ToString();
+
+            installingAttentionL.Content = "Идёт установка " + selectedForgeVersion + ".";
             installingAttentionL.Visibility = Visibility.Visible;
+
+            await Utils.installForge(selectedVersion, selectedForgeVersion, gamePath);
+
+            installingAttentionL.Content = "Forge версии " + selectedVersion + "-" + selectedForgeVersion + " успешно установлен.";
+            versionsCB.IsEnabled = forgeVersionsCB.IsEnabled = installB.IsEnabled = true;
+
+            mw.updateGamePath();
+
+            versionsCB.SelectedItem = selectedVersion;
+            forgeVersionsCB.SelectedIndex = 0;
         }
 
         private void versionsCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (versionsCB.SelectedIndex == -1 || installingAttentionL.Visibility == Visibility.Visible)
+            if (versionsCB.SelectedIndex == -1 || !versionsCB.IsEnabled)
                 return;
 
+            string selectedVersion = versionsCB.SelectedItem.ToString();
+
             cbForgeVersions.Clear();
-            foreach (string forgeVersion in versions[versionsCB.SelectedItem.ToString()].versions)
-                if (!File.Exists(versionsPath + forgeVersion + "\\" + forgeVersion + ".jar"))
+            foreach (string forgeVersion in versions[selectedVersion].versions)
+                if (!File.Exists(versionsPath + selectedVersion + "-" + forgeVersion + "\\" + selectedVersion + "-" + forgeVersion + ".json"))
                     cbForgeVersions.Add(forgeVersion);
 
             CollectionViewSource source = Resources["forgeVersionsSource"] as CollectionViewSource;
             source.Source = cbForgeVersions;
 
             installB.IsEnabled = true;
+            forgeVersionsCB.SelectedIndex = 0;
         }
 
         public void loadData(string gamePath, Dictionary<string, ForgeVersion> versions)
         {
-            if (installingAttentionL.Visibility == Visibility.Visible)
+            if (!versionsCB.IsEnabled)
                 return;
 
             this.gamePath = gamePath;
             this.versions = versions;
             versionsPath = gamePath + "\\versions\\";
 
+            cbForgeVersions.Clear();
             cbVersions.Clear();
             foreach (KeyValuePair<string, ForgeVersion> version in versions)
                 if (File.Exists(versionsPath + version.Key + "\\" + version.Key + ".jar"))
@@ -76,11 +83,6 @@ namespace PixelPerfect.Pages
 
             CollectionViewSource source = Resources["versionsSource"] as CollectionViewSource;
             source.Source = cbVersions;
-        }
-
-        public void update()
-        {
-
         }
     }
 }

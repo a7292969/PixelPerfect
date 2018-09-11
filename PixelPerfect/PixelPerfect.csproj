@@ -301,10 +301,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\icon.ico" />
+    <Resource Include="Images\forge_logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\forge_logo.png" />
+    <Resource Include="Images\icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -47,8 +47,6 @@ namespace PixelPerfect
         public MainWindow()
         {
             InitializeComponent();
-
-            Utils.installForge("1.6.4", "forge-9.11.0.905", "");
             ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
 
 #if (!DEBUG)
@@ -103,12 +101,8 @@ namespace PixelPerfect
                 saveConfig();
             }
 
-            forgeManifest = Utils.GetForgeVersions();
-            if (forgeManifest == null)
-                forgeManifest = new Dictionary<string, ForgeVersion>();
-
+            forgeManifest = new Dictionary<string, ForgeVersion>();
             addProfilePage.loadVersionManifest(versionManifest);
-            forgePage.loadData((string)settings["gamePath"], forgeManifest);
 
             updateGamePath();
             updateProfileItems();
@@ -129,7 +123,7 @@ namespace PixelPerfect
             }
 
             if ((string)settings["accessToken"] == "0" || (string)settings["uuid"] == "0" || (string)settings["clientToken"] == "0" || responce == "403")
-                loadLogin();
+                loadLogin();          
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -148,6 +142,13 @@ namespace PixelPerfect
                 loadingG.Visibility = Visibility.Hidden;
                 loadSelectedPage();
             }
+
+
+            forgeManifest = Utils.GetForgeVersions();
+            if (forgeManifest == null)
+                forgeManifest = new Dictionary<string, ForgeVersion>();
+
+            forgePage.loadData((string)settings["gamePath"], forgeManifest);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -520,6 +521,7 @@ namespace PixelPerfect
         public void updateGamePath()
         {
             editProfilePage.updateVersions(versionManifest, (string)settings["gamePath"] + "\\versions\\", (bool)settings["showSnapshots"]);
+            forgePage.loadData((string)settings["gamePath"], forgeManifest);
             updateProfileItems();
         }
 
@@ -551,7 +553,7 @@ namespace PixelPerfect
         public void editSelectedProfile()
         {
             string selectedProfile = settings["selectedProfile"].ToString();
-            editProfilePage.load(selectedProfile, getProfile(selectedProfile));
+            editProfilePage.load((string)settings["gamePath"], selectedProfile, getProfile(selectedProfile));
 
             profilesSV.Visibility = Visibility.Hidden;
             navigatePage(editProfilePage, false, false);
@@ -774,6 +776,14 @@ namespace PixelPerfect
                     settings["selectedProfile"] = newName;
 
                 settings["profiles"][oldName].Parent.Remove();
+                settings["profiles"][newName] = profile;
+
+                if ((bool)settings["profiles"][newName]["custom"])
+                {
+                    string gamePath = (string)settings["gamePath"];
+                    if (Directory.Exists(gamePath + "\\" + oldName))
+                        Directory.Move(gamePath + "\\" + oldName, gamePath + "\\" + newName);
+                }
             }
 
             settings["profiles"][newName] = profile;

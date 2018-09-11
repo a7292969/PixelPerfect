@@ -13,7 +13,10 @@
             <Label x:Name="existsAttentionL" Content="Конфигурация с таким названием уже существует." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label x:Name="imageAttentionL" Content="Иконка должна быть PNG-файлом, с соотношением сторон 1:1." HorizontalAlignment="Center" Height="32" VerticalAlignment="Center" Width="500" Style="{DynamicResource AttentionLabel}" FontSize="14" Margin="0,0,0,10" Visibility="Collapsed"/>
             <Label Content="Редактировать конфиругацию" HorizontalAlignment="Center" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" Margin="0" FontFamily="Source Sans Pro Semibold" FontSize="20" Foreground="#FF222222"/>
-            <Label x:Name="deleteL" Content="Удалить [X]" Style="{DynamicResource GreenHyperLabel}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,33" FontSize="14" MouseUp="deleteL_MouseUp"/>
+            <StackPanel Margin="0,0,0,33" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label x:Name="openFolderL" Content="Открыть папку" Style="{DynamicResource GreenHyperLabel}" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14" Margin="0" MouseUp="openFolderL_MouseUp"/>
+                <Label x:Name="deleteL" Content="Удалить [X]" Style="{DynamicResource GreenHyperLabel}" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" MouseUp="deleteL_MouseUp" Margin="10,0,0,0"/>
+            </StackPanel>
             <Label Content="Название" HorizontalAlignment="Left" VerticalAlignment="Top" Style="{DynamicResource CustomLabel}" FontSize="15" Foreground="#FF444444"/>
             <Grid Margin="0,-2,0,0" UseLayoutRounding="True" SnapsToDevicePixels="True">
                 <TextBox x:Name="nameTB" VerticalAlignment="Center" Style="{DynamicResource MinecraftTextBox}" VerticalContentAlignment="Center" FontSize="13" TextChanged="nameTB_TextChanged" Height="34" Margin="0,7,55,7" Width="503" UseLayoutRounding="True"/>

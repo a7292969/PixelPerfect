@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -33,7 +34,7 @@ namespace PixelPerfect.Pages
             "Mycelium"
         };
 
-        private string oldName, selectedIconPath, iconData;
+        private string gamePath, oldName, selectedIconPath, iconData;
 
         public EditProfilePage()
         {
@@ -74,6 +75,16 @@ namespace PixelPerfect.Pages
         {
             mainControlsSP.IsEnabled = false;
             deleteDialogG.Visibility = Visibility.Visible;
+        }
+
+        private void openFolderL_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            string path = gamePath + "\\";
+
+            if ((bool)customCB.IsChecked)
+                path += oldName;
+
+            Process.Start(path);
         }
 
         private void deleteProfileB_Click(object sender, RoutedEventArgs e)
@@ -220,8 +231,9 @@ namespace PixelPerfect.Pages
             versionsCB.SelectedIndex = 0;
         }
      
-        public void load(string name, JObject profile)
+        public void load(string gamePath, string name, JObject profile)
         {
+            this.gamePath = gamePath;
             oldName = name;
 
             nameTB.Text = name;

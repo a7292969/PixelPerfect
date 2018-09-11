@@ -1,4 +1,5 @@
 ﻿using Ionic.Zip;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -135,7 +136,7 @@ namespace PixelPerfect
 
             JArray json = JArray.Parse(responce);
             Dictionary<string, ForgeVersion> versions = new Dictionary<string, ForgeVersion>();
-            
+
             foreach (JObject o in json)
             {
                 string name = (string)o["name"];
@@ -150,7 +151,7 @@ namespace PixelPerfect
 
                 versions[gameVersion].versions.Add(name);
             }
-            
+
             return versions;
         }
 
@@ -242,7 +243,8 @@ namespace PixelPerfect
                     string version = (string)ver["id"];
                     return gamePath + "\\versions\\" + version + "\\" + version + ".json";
                 }
-            } catch { return gamePath + "\\versions\\" + checkVersion + "\\" + checkVersion + ".json"; }
+            }
+            catch { return gamePath + "\\versions\\" + checkVersion + "\\" + checkVersion + ".json"; }
         }
 
         public static List<FileToDownload> getAllLibrariesToDownload(JObject verData, string gamePath)
@@ -286,7 +288,7 @@ namespace PixelPerfect
                     string urlPath = ((string)o["name"]).Replace(":", "/");
                     urlPath = urlPath.Replace(jarName + "/" + jarVersion, string.Empty).Replace(".", "/") + jarName + "/" + jarVersion + "/" + jarName + "-" + jarVersion + ".jar";
                     string url;
-                    
+
                     if (o.ContainsKey("url"))
                         url = (string)o["url"] + "/" + urlPath;
                     else
@@ -411,107 +413,107 @@ namespace PixelPerfect
             {
                 //try
                 //{
-                    string assetsPath = gamePath + "\\assets\\";
-                    string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
-                    string librariesPath = gamePath + "\\libraries\\";
-                    string versionsPath = gamePath + "\\versions\\";
+                string assetsPath = gamePath + "\\assets\\";
+                string legacyAssetsPath = gamePath + "\\assets\\virtual\\legacy\\";
+                string librariesPath = gamePath + "\\libraries\\";
+                string versionsPath = gamePath + "\\versions\\";
 
 
-                    // Main version file
-                    string originalVersionJsonPath = getOriginalVersionPath(version, gamePath);
-                    string originalVersionJsonData;
+                // Main version file
+                string originalVersionJsonPath = getOriginalVersionPath(version, gamePath);
+                string originalVersionJsonData;
 
-                    string versionJsonPath = versionsPath + version + "\\" + version + ".json";
-                    string versionJsonData;
+                string versionJsonPath = versionsPath + version + "\\" + version + ".json";
+                string versionJsonData;
 
-                    if (originalVersionJsonPath == versionJsonPath)
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(versionJsonPath));
-                        if (File.Exists(versionJsonPath))
-                            versionJsonData = File.ReadAllText(versionJsonPath);
-                        else
-                        {
-                            versionJsonData = Connector.Get(manifest.versions[version].resourcesURL);
-                            File.AppendAllText(versionJsonPath, versionJsonData);
-                        }
-
-                        originalVersionJsonData = versionJsonData;
-                    }
-                    else
-                    {
-                        originalVersionJsonData = File.ReadAllText(originalVersionJsonPath);
+                if (originalVersionJsonPath == versionJsonPath)
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(versionJsonPath));
+                    if (File.Exists(versionJsonPath))
                         versionJsonData = File.ReadAllText(versionJsonPath);
-                    }
-
-
-
-                    JObject originalVerData = JObject.Parse(originalVersionJsonData);
-                    JObject verData = JObject.Parse(versionJsonData);
-
-
-                    // Version index file
-                    string assetIndexPath = assetsPath + "indexes\\" + (string)originalVerData["assetIndex"]["id"] + ".json";
-                    string assetIndexData;
-
-                    Directory.CreateDirectory(Path.GetDirectoryName(assetIndexPath));
-                    if (File.Exists(assetIndexPath))
-                        assetIndexData = File.ReadAllText(assetIndexPath);
                     else
                     {
-                        assetIndexData = Connector.Get((string)originalVerData["assetIndex"]["url"]);
-                        File.AppendAllText(assetIndexPath, assetIndexData);
+                        versionJsonData = Connector.Get(manifest.versions[version].resourcesURL);
+                        File.AppendAllText(versionJsonPath, versionJsonData);
                     }
 
+                    originalVersionJsonData = versionJsonData;
+                }
+                else
+                {
+                    originalVersionJsonData = File.ReadAllText(originalVersionJsonPath);
+                    versionJsonData = File.ReadAllText(versionJsonPath);
+                }
 
-                    List<FileToDownload> files = new List<FileToDownload>();
 
-                    // Version jar file
-                    files.Add(new FileToDownload(version + ".jar", versionsPath + version + "\\" + version + ".jar", (string)originalVerData["downloads"]["client"]["url"], (string)originalVerData["downloads"]["client"]["sha1"], (long)originalVerData["downloads"]["client"]["size"]));
 
-                    // Logging
-                    if (verData.ContainsKey("logging"))
+                JObject originalVerData = JObject.Parse(originalVersionJsonData);
+                JObject verData = JObject.Parse(versionJsonData);
+
+
+                // Version index file
+                string assetIndexPath = assetsPath + "indexes\\" + (string)originalVerData["assetIndex"]["id"] + ".json";
+                string assetIndexData;
+
+                Directory.CreateDirectory(Path.GetDirectoryName(assetIndexPath));
+                if (File.Exists(assetIndexPath))
+                    assetIndexData = File.ReadAllText(assetIndexPath);
+                else
+                {
+                    assetIndexData = Connector.Get((string)originalVerData["assetIndex"]["url"]);
+                    File.AppendAllText(assetIndexPath, assetIndexData);
+                }
+
+
+                List<FileToDownload> files = new List<FileToDownload>();
+
+                // Version jar file
+                files.Add(new FileToDownload(version + ".jar", versionsPath + version + "\\" + version + ".jar", (string)originalVerData["downloads"]["client"]["url"], (string)originalVerData["downloads"]["client"]["sha1"], (long)originalVerData["downloads"]["client"]["size"]));
+
+                // Logging
+                if (verData.ContainsKey("logging"))
+                {
+                    JObject file = (JObject)originalVerData["logging"]["client"]["file"];
+
+                    string name = (string)file["id"];
+                    string url = (string)file["url"];
+
+                    string loggingpath = assetsPath + "log_configs\\" + name;
+
+                    if (!File.Exists(loggingpath))
                     {
-                        JObject file = (JObject)originalVerData["logging"]["client"]["file"];
-
-                        string name = (string)file["id"];
-                        string url = (string)file["url"];
-
-                        string loggingpath = assetsPath + "log_configs\\" + name;
-
-                        if (!File.Exists(loggingpath))
-                        {
-                            Directory.CreateDirectory(Path.GetDirectoryName(loggingpath));
-                            File.AppendAllText(loggingpath, Connector.Get(url));
-                        }
+                        Directory.CreateDirectory(Path.GetDirectoryName(loggingpath));
+                        File.AppendAllText(loggingpath, Connector.Get(url));
                     }
+                }
 
-                    // Libraries
-                    files.AddRange(ParseInheritsDownloads(verData, gamePath));
+                // Libraries
+                files.AddRange(ParseInheritsDownloads(verData, gamePath));
 
-                    // Assets
-                    JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
-                    foreach (JProperty prop in assets.Properties())
-                    {
-                        JObject o = (JObject)prop.Value;
+                // Assets
+                JObject assets = (JObject)JObject.Parse(assetIndexData)["objects"];
+                foreach (JProperty prop in assets.Properties())
+                {
+                    JObject o = (JObject)prop.Value;
 
-                        string hash = (string)o["hash"];
-                        long size = (long)o["size"];
-                        string subHash = hash.Substring(0, 2);
-                        string path = assetsPath + "objects\\" + subHash + "\\" + hash;
+                    string hash = (string)o["hash"];
+                    long size = (long)o["size"];
+                    string subHash = hash.Substring(0, 2);
+                    string path = assetsPath + "objects\\" + subHash + "\\" + hash;
 
 
-                        FileToDownload file;
+                    FileToDownload file;
 
-                        if ((string)originalVerData["assets"] == "legacy")
-                            file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
-                        else
-                            file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                    if ((string)originalVerData["assets"] == "legacy")
+                        file = new FileToDownload(prop.Name, path, legacyAssetsPath + prop.Name, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
+                    else
+                        file = new FileToDownload(prop.Name, path, "http://resources.download.minecraft.net/" + subHash + "/" + hash, hash, size);
 
-                        if (!files.Contains(file))
-                            files.Add(file);
-                    }
+                    if (!files.Contains(file))
+                        files.Add(file);
+                }
 
-                    return files;
+                return files;
                 //} catch { return null; }
             });
         }
@@ -556,7 +558,8 @@ namespace PixelPerfect
                             {
                                 if (!e.FileName.Contains("META-INF"))
                                     e.Extract(nativesPath, ExtractExistingFileAction.OverwriteSilently);
-                            } catch { }
+                            }
+                            catch { }
                         }
                     }
                 }
@@ -603,7 +606,8 @@ namespace PixelPerfect
                         {
                             string str = (string)game[i];
                             mcArgs += str + " ";
-                        } catch { }
+                        }
+                        catch { }
                     }
 
                     if (verData.ContainsKey("arguments"))
@@ -659,14 +663,27 @@ namespace PixelPerfect
             await Task.Run(() =>
             {
                 string filename = forgeVersion.Replace("-", "-" + mcVersion + "-") + "-installer.jar";
+                string filename2 = forgeVersion.Replace("-", "-" + mcVersion + "-") + "-" + mcVersion + "-installer.jar";
 
                 string url = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + mcVersion + "-" + forgeVersion.Remove(0, 6) + "/" + filename;
+                string url2 = "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + mcVersion + "-" + forgeVersion.Remove(0, 6) + "-" + mcVersion + "/" + filename2;
                 string jarDownloadPath = Path.GetTempPath() + "\\PixelPerfectForge\\" + filename;
                 Directory.CreateDirectory(Directory.GetParent(jarDownloadPath).FullName);
 
 
                 WebClient webClient = new WebClient();
-                byte[] bytes = webClient.DownloadData(url);
+                byte[] bytes;
+
+                try
+                {
+                    bytes = webClient.DownloadData(url);
+                }
+                catch
+                {
+                    url = url2;
+                    filename = filename2;
+                    bytes = webClient.DownloadData(url);
+                }
 
                 if (File.Exists(jarDownloadPath))
                     File.Delete(jarDownloadPath);
@@ -676,20 +693,48 @@ namespace PixelPerfect
                 string profileFilename = "install_profile.json";
                 string profilePath = Path.GetTempPath() + "\\PixelPerfectForge\\" + profileFilename;
 
-                ZipFile jar = new ZipFile(jarDownloadPath);
-                foreach (ZipEntry e in jar)
+                using (ZipFile jar = new ZipFile(jarDownloadPath))
                 {
-                    if (e.FileName == profileFilename)
-                        e.Extract(Directory.GetParent(profilePath).FullName, ExtractExistingFileAction.OverwriteSilently);
+                    foreach (ZipEntry e in jar)
+                        if (e.FileName == profileFilename)
+                            e.Extract(Directory.GetParent(profilePath).FullName, ExtractExistingFileAction.OverwriteSilently);
+
+                    string profileJson = File.ReadAllText(profilePath);
+                    JObject profile = JObject.Parse(profileJson);
+
+                    string forgeLibFilename = (string)profile["install"]["filePath"];
+                    string forgeLibPath = ((string)profile["install"]["path"]).Replace(":", "\\");
+                    string jarVersion = Path.GetFileName(forgeLibPath);
+                    string jarName = Directory.GetParent(forgeLibPath).Name;
+
+                    forgeLibPath = gamePath + "\\libraries\\" + forgeLibPath.Replace(jarName + "\\" + jarVersion, string.Empty).Replace(".", "\\") + jarName + "\\" + jarVersion + "\\" + jarName + "-" + jarVersion + ".jar";
+
+                    string forgeLibDir = Directory.GetParent(forgeLibPath).FullName;
+                    Directory.CreateDirectory(forgeLibDir);
+
+                    foreach (ZipEntry e in jar)
+                    {
+                        if (e.FileName == forgeLibFilename)
+                        {
+                            e.Extract(forgeLibDir, ExtractExistingFileAction.OverwriteSilently);
+
+                            string forgeNewPath = forgeLibDir + "\\" + jarName + "-" + jarVersion + ".jar";
+                            if (File.Exists(forgeNewPath))
+                                File.Delete(forgeNewPath);
+
+                            File.Move(forgeLibDir + "\\" + forgeLibFilename, forgeLibDir + "\\" + jarName + "-" + jarVersion + ".jar");
+                        }
+                    }
+
+
+                    string forgeJsonPath = gamePath + "\\versions\\" + mcVersion + "-" + forgeVersion + "\\" + mcVersion + "-" + forgeVersion + ".json";
+
+                    JObject versionStartData = (JObject)profile["versionInfo"];
+                    versionStartData["id"] = mcVersion + "-" + forgeVersion;
+
+                    Directory.CreateDirectory(Directory.GetParent(forgeJsonPath).FullName);
+                    File.WriteAllText(forgeJsonPath, JToken.Parse(JsonConvert.SerializeObject(versionStartData)).ToString(Formatting.Indented));
                 }
-
-
-
-
-                // TODO THIS
-
-
-
 
                 File.Delete(jarDownloadPath);
             });
