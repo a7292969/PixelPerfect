@@ -151,9 +151,9 @@ namespace PixelPerfect
 
                 using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                 {
-                        using (Stream stream = response.GetResponseStream())
-                        using (StreamReader reader = new StreamReader(stream))
-                            return await reader.ReadToEndAsync();
+                    using (Stream stream = response.GetResponseStream())
+                    using (StreamReader reader = new StreamReader(stream))
+                        return await reader.ReadToEndAsync();
                 }
             }
             catch (WebException e)
@@ -162,7 +162,7 @@ namespace PixelPerfect
                 using (StreamReader reader = new StreamReader(stream))
                     Console.WriteLine(await reader.ReadToEndAsync());
 
-                
+
                 return ((int)((HttpWebResponse)e.Response).StatusCode).ToString();
             }
         }

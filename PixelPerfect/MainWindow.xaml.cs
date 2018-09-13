@@ -403,9 +403,9 @@ namespace PixelPerfect
             modsTB.BeginAnimation(MinecraftToggleButton.checkOpacityProperty, anim3);
         }
 
-        public void loadGeneralPage()
+        public async void loadGeneralPage()
         {
-            generalPage.updateNews();
+            await generalPage.updateNews();
             navigatePage(generalPage, false, true);
             showPlayBar();
         }
@@ -440,8 +440,6 @@ namespace PixelPerfect
                 loadStatusPage();
             else if (modsTB.CheckOpacity == 1)
                 loadModsPage();
-
-            showPlayBar();
         }
 
         public void navigatePage(Page page, bool disableScroll, bool stretch)

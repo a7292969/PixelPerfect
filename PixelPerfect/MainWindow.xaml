@@ -57,12 +57,12 @@
                     </Label>
                 </Grid>
             </Grid>
-            <StackPanel x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="0,0,0,32" SnapsToDevicePixels="True" UseLayoutRounding="True">
-                <Button x:Name="addProfileB" Content="" Width="34" Height="63" Style="{DynamicResource AddProfileButton}" Margin="0,0,-3,0" Click="addProfileB_Click"/>
-                <Button x:Name="editProfileB" Content="" Width="34" Height="63" Style="{DynamicResource EditProfileButton}" Margin="0,0,-3,0" Click="editProfileB_Click"/>
-                <Button x:Name="playB" Content="ИГРАТЬ" Width="261" Height="63" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="0" Click="playB_Click"/>
-                <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Width="34" Style="{DynamicResource ChangeProfileButton}" Margin="-3,0,0,0" Click="profilesB_Click"/>
-            </StackPanel>
+            <Grid x:Name="playButtonsSP" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,32">
+                <Button x:Name="addProfileB" Content="" Style="{DynamicResource AddProfileButton}" Margin="0" Click="addProfileB_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Width="34" Height="63"/>
+                <Button x:Name="editProfileB" Content="" Style="{DynamicResource EditProfileButton}" Margin="31,0,0,0" Click="editProfileB_Click" Width="34" Height="63" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Button x:Name="profilesB" Content="" Height="63" VerticalAlignment="Top" Style="{DynamicResource ChangeProfileButton}" Margin="320,0,0,0" Click="profilesB_Click" HorizontalAlignment="Left" Width="34"/>
+                <Button x:Name="playB" Content="ИГРАТЬ" Style="{DynamicResource PlayButton}" Foreground="White" FontWeight="Bold" FontSize="31" Margin="62,0,0,0" Click="playB_Click" Width="261" HorizontalAlignment="Left" VerticalAlignment="Center" Height="63"/>
+            </Grid>
             <ScrollViewer x:Name="profilesSV" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="338" Margin="0,0,0,93" Background="#FFCCCCCC" Template="{DynamicResource ProfilesScrollViewer}" MaxHeight="308" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
                 <StackPanel x:Name="profilesSP"/>
             </ScrollViewer>

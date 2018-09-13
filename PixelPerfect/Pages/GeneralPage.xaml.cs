@@ -1,20 +1,13 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PixelPerfect.Pages
 {
@@ -85,36 +78,42 @@ namespace PixelPerfect.Pages
             grid.Children.Add(titleL);
             grid.Children.Add(textL);
 
-            newsSP.Children.Add(grid);
+            newsSP.Dispatcher.Invoke(() => newsSP.Children.Add(grid));
         }
 
-        public async void updateNews()
+        public async Task updateNews()
         {
-            string response = await Connector.GetAsync("http://launchermeta.mojang.com/mc/news.json");
-
-            if (response == "-1")
-                return;
-
-            JObject obj = JObject.Parse(response);
-            JArray entries = (JArray)obj["entries"];
-
-            newsSP.Children.Clear();
-
-            foreach (JObject o in entries)
+            await Task.Run(() =>
             {
-                string tag = (string)o["tags"][0];
+                string response = Connector.Get("http://launchermeta.mojang.com/mc/news.json");
 
-                if (tag != "demo")
+                if (response == "-1")
+                    return;
+
+                JObject obj = JObject.Parse(response);
+                JArray entries = (JArray)obj["entries"];
+
+                newsSP.Dispatcher.Invoke(() =>
                 {
-                    string url = (string)o["content"]["en-us"]["action"];
-                    string imgPath = (string)o["content"]["en-us"]["image"];
-                    string title = (string)o["content"]["en-us"]["title"];
-                    string text = (string)o["content"]["en-us"]["text"];
+                    newsSP.Children.Clear();
 
-                    BitmapImage bitmap = new BitmapImage(new Uri(imgPath, UriKind.Absolute));
-                    addNews(title, text, url, bitmap);
-                }
-            }
+                    foreach (JObject o in entries)
+                    {
+                        string tag = (string)o["tags"][0];
+
+                        if (tag != "demo")
+                        {
+                            string url = (string)o["content"]["en-us"]["action"];
+                            string imgPath = (string)o["content"]["en-us"]["image"];
+                            string title = (string)o["content"]["en-us"]["title"];
+                            string text = (string)o["content"]["en-us"]["text"];
+
+                            BitmapImage bitmap = new BitmapImage(new Uri(imgPath, UriKind.Absolute));
+                            addNews(title, text, url, bitmap);
+                        }
+                    }
+                });
+            });
         }
     }
 }
