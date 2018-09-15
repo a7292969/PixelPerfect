@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "19b34a1b68a00a2a84244f039c4b309e": {
+      "type": "latest-release",
+      "lastUsed": "2018-09-13T14:46:53.724Z"
+    },
+    "028fd5a0974f96b33cea3577cf62f84f": {
+      "type": "latest-snapshot",
+      "lastUsed": "1970-01-01T00:00:00.000Z"
+    }
+  },
+  "selectedProfile": "OptiFine"
+}

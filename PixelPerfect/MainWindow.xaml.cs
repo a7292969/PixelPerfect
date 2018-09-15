@@ -30,7 +30,7 @@ namespace PixelPerfect
         private EditProfilePage editProfilePage;
 
         private JObject settings;
-        private string ppPath, jrePath, configPath;
+        private string ppPath, dotMinecraftPath, jrePath, configPath;
 
         private VersionManifest versionManifest;
         private Dictionary<string, ForgeVersion> forgeManifest;
@@ -48,6 +48,7 @@ namespace PixelPerfect
         {
             InitializeComponent();
             ppPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\PixelPerfect\\";
+            dotMinecraftPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\Roaming\\.minecraft\\";
 
 #if (!DEBUG)
             FileStream ostrm;
@@ -142,6 +143,10 @@ namespace PixelPerfect
                 loadingG.Visibility = Visibility.Hidden;
                 loadSelectedPage();
             }
+
+            string profilesTempPath = (string)settings["gamePath"] + "\\launcher_profiles.json";
+            if (!File.Exists(profilesTempPath))
+                File.WriteAllBytes(profilesTempPath, Properties.Resources.launcher_profiles);
 
 
             forgeManifest = Utils.GetForgeVersions();
@@ -664,7 +669,7 @@ namespace PixelPerfect
                     settings = JObject.Parse(File.ReadAllText(configPath));
 
                     if (!settings.ContainsKey("gamePath"))
-                        settings["gamePath"] = ppPath + "Minecraft";
+                        settings["gamePath"] = dotMinecraftPath;
                     if (!settings.ContainsKey("profiles"))
                         settings["profiles"] = new JObject();
                     if (!settings.ContainsKey("selectedProfile"))
@@ -712,7 +717,7 @@ namespace PixelPerfect
         public void createNewConfig()
         {
             settings = new JObject();
-            settings["gamePath"] = ppPath + "Minecraft";
+            settings["gamePath"] = dotMinecraftPath;
             settings["profiles"] = new JObject();
             settings["selectedProfile"] = RELEASE_VERSION_NAME;
             settings["showSnapshots"] = false;

@@ -198,6 +198,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Resources\JRE.zip" />
+    <None Include="Resources\launcher_profiles.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
